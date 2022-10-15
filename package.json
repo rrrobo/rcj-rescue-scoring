@@ -68,7 +68,7 @@
     "grunt-contrib-uglify": "5.0.1",
     "grunt-json-minification": "^0.2.1",
     "prettier": "2.4.1",
-    "workbox-cli": "6.3.0"
+    "workbox-cli": "6.5.4"
   },
   "author": "",
   "license": "MIT"
