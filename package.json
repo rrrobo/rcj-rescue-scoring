@@ -20,7 +20,7 @@
     "cookie-parser": "1.4.6",
     "dateformat": "4.6.3",
     "escape-html": "1.0.3",
-    "express": "4.19.2",
+    "express": "4.20.0",
     "express-rate-limit": "5.4.0",
     "express-session": "1.17.2",
     "fluent-ffmpeg": "2.1.2",
