@@ -12,7 +12,7 @@
     "@bull-board/express": "5.20.5",
     "archiver": "7.0.1",
     "async": "3.2.5",
-    "body-parser": "1.20.2",
+    "body-parser": "1.20.3",
     "bull": "4.15.1",
     "chmodr": "1.2.0",
     "compression": "1.7.4",
