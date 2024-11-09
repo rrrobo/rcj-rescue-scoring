@@ -31,16 +31,16 @@ module.exports.calculateLineScore = function (run) {
             checkPointCount++;
             break;
           case 'gap':
-            score += 10 * tile.scoredItems[j].scored * tile.scoredItems[j].count;
+            score += 10 * tile.scoredItems[j].scored;
             break;
           case 'intersection':
             score += 10 * tile.scoredItems[j].scored * tile.scoredItems[j].count;
             break;
           case 'obstacle':
-            score += 15 * tile.scoredItems[j].scored * tile.scoredItems[j].count;
+            score += 20 * tile.scoredItems[j].scored * tile.scoredItems[j].count;
             break;
           case 'speedbump':
-            score += 5 * tile.scoredItems[j].scored * tile.scoredItems[j].count;
+            score += 10 * tile.scoredItems[j].scored;
             break;
           case 'ramp':
             score += 10 * tile.scoredItems[j].scored * tile.scoredItems[j].count;
@@ -50,7 +50,7 @@ module.exports.calculateLineScore = function (run) {
     }
     
     if (run.exitBonus) {
-      score += 30; //From 2022(NL)
+      score += 30;
     }
 
     for (let victim of run.nl.liveVictim) {
