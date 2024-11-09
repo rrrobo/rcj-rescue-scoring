@@ -187,7 +187,6 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
         console.log($scope.tiles)
         $scope.EvacuationAreaLoPIndex = result.EvacuationAreaLoPIndex;
         $scope.indexCount = result.indexCount;
-        $scope.maxRawScore = result.maxScore;
     }
 
 
@@ -441,9 +440,6 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
         document.body.removeChild(downloadLink);
     }
 
-    function maxScore(multiplier){
-        return Math.round($scope.maxRawScore * multiplier);
-    }
 
     $scope.openMaxScore = function(){
         let html = `
@@ -459,11 +455,11 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
                 <th>EZ:2 & Kit:2</th>
             </thead>
             <tbody>
-                <td>${maxScore(1.0)}</td>
-                <td>${maxScore(1.1*1.2*1.2*1.2)}</td>
-                <td>${maxScore(1.3*1.2*1.2*1.2)}</td>
-                <td>${maxScore(1.2*1.4*1.4*1.4)}</td>
-                <td>${maxScore(1.6*1.4*1.4*1.4)}</td>
+                <td>----</td>
+                <td>----</td>
+                <td>----</td>
+                <td>----</td>
+                <td>----</td>
             </tbody>
         </table>
         `;

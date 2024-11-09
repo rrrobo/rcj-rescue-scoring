@@ -710,65 +710,11 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
     }
 
     $scope.openMaxScore = function(){
-        let maxScore = 0;
-        let victimCount = 0;
-        let kitCount = 0;
-        const maxKits = {
-            "H": 3,
-            "S": 2,
-            "U": 0,
-            "Red": 1,
-            "Yellow": 1,
-            "Green": 0,
-            "None": 0
-        };
-        const coloredVictims = ["Red", "Yellow", "Green"];
-        Object.keys($scope.cells).map(function(key){
-            let cell = $scope.cells[key];
-            if(cell.isTile){
-                if(cell.tile.victims){
-                    Object.keys(cell.tile.victims).map(function(dir){
-                        if ($scope.leagueType == 'entry') {
-                            if(coloredVictims.includes(cell.tile.victims[dir])) {
-                                maxScore += cell.isLinear ? 15 : 30;
-                                kitCount ++;
-                                victimCount ++;
-                            }
-                        } else {
-                            if(coloredVictims.includes(cell.tile.victims[dir])){
-                                maxScore += cell.isLinear ? 5 : 15;
-                                victimCount++;
-                            }else if(cell.tile.victims[dir] != "None"){
-                                maxScore += cell.isLinear ? 10 : 30;
-                                victimCount++;
-                            }
-                            kitCount += maxKits[cell.tile.victims[dir]];
-                        }
-                        
-                    });
-                }
-                if(cell.tile.speedbump) maxScore += 5;
-                if(cell.tile.checkpoint) maxScore += 10;
-                if(cell.tile.ramp) maxScore += 10;
-                if(cell.tile.steps) maxScore += 5;
-            }
-        });
-
-        if ($scope.leagueType == 'entry') {
-            maxScore += kitCount * 10;
-            maxScore += victimCount * 20;
-        } else {
-            maxScore += Math.min(kitCount, 12) * 10;
-            maxScore += (victimCount + Math.min(kitCount, 12)) * 10;
-            maxScore += victimCount * 10;
-        }
-        
-
         let html = `
         <div class='text-center'>
             <i class='fas fa-calculator fa-3x'></i>
         </div><hr>
-        <p style='font-size:50px'>${maxScore}</p>
+        <p style='font-size:50px'>----</p>
         `;
         Swal.fire({
             html: html,
