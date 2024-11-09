@@ -27,7 +27,6 @@ function traverse(curTile, entryDir, tiles, map, index, chpCount, restartFlag) {
   let nextTile = tiles[next_Coord];
 
   console.log(curTile)
-  //Max score calculation
   if(curTile.checkPoint){
     lastCheckpointIndex = index;
   }
