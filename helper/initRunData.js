@@ -1,7 +1,7 @@
 const logger = require('../config/logger').mainLogger;
 const { lineMap } = require('../models/lineMap');
 
-module.exports.initLine = async function (run) {
+module.exports.initLine = async function (run, scored = false) {
   if (run.started) return null;
 
   const query = lineMap.findById(run.map);
@@ -22,7 +22,7 @@ module.exports.initLine = async function (run) {
         if (m.items.obstacles > 0) {
           run.tiles[i].scoredItems.push({
             item: "obstacle",
-            scored: false,
+            scored: scored,
             count: m.items.obstacles
           })
         }
@@ -31,7 +31,7 @@ module.exports.initLine = async function (run) {
         if (m.items.speedbumps > 0) {
           run.tiles[i].scoredItems.push({
             item: "speedbump",
-            scored: false,
+            scored: scored,
             count: m.items.speedbumps
           })
         }
@@ -40,7 +40,7 @@ module.exports.initLine = async function (run) {
         if (m.tileType.gaps > 0) {
           run.tiles[i].scoredItems.push({
             item: "gap",
-            scored: false,
+            scored: scored,
             count: m.tileType.gaps
           })
         }
@@ -49,7 +49,7 @@ module.exports.initLine = async function (run) {
         if (m.tileType.intersections > 0) {
           run.tiles[i].scoredItems.push({
             item: "intersection",
-            scored: false,
+            scored: scored,
             count: m.tileType.intersections
           })
         }
@@ -58,7 +58,7 @@ module.exports.initLine = async function (run) {
         if (m.tileType.seesaw > 0) {
           run.tiles[i].scoredItems.push({
             item: "seesaw",
-            scored: false,
+            scored: scored,
             count: m.tileType.seesaw
           })
         }
@@ -67,7 +67,7 @@ module.exports.initLine = async function (run) {
         if (m.items.rampPoints) {
           run.tiles[i].scoredItems.push({
             item: "ramp",
-            scored: false,
+            scored: scored,
             count: 1
           })
         }
@@ -76,7 +76,7 @@ module.exports.initLine = async function (run) {
         if (m.checkPoint) {
           run.tiles[i].scoredItems.push({
             item: "checkpoint",
-            scored: false,
+            scored: scored,
             count: 1
           })
           checkPointCount++;
@@ -104,13 +104,13 @@ module.exports.initLine = async function (run) {
     // NL Victim Backet
     if (run.isNL) {
       run.nl.liveVictim = new Array(map.victims.live).fill({
-        "found": false,
-        "identified": false
+        "found": scored,
+        "identified": scored
       });
   
       run.nl.deadVictim = new Array(map.victims.dead).fill({
-        "found": false,
-        "identified": false
+        "found": scored,
+        "identified": scored
       });
     }
     return run;

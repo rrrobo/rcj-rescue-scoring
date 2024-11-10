@@ -7,6 +7,7 @@ const { mazeRun } = require('../../models/mazeRun');
 const { ObjectId } = require('mongoose').Types;
 const logger = require('../../config/logger').mainLogger;
 const { mazeMap } = require('../../models/mazeMap');
+const scoreCalculator = require('../../helper/scoreCalculator');
 
 publicRouter.get('/', getMazeMaps);
 
@@ -159,6 +160,69 @@ publicRouter.get('/:map', function (req, res, next) {
       });
     } else {
       res.status(200).send(data);
+    }
+  });
+});
+
+adminRouter.get('/:map/maxScore', async function (req, res, next) {
+  const id = req.params.map;
+
+  if (!ObjectId.isValid(id)) {
+    return next();
+  }
+
+  mazeMap.findById(id).populate([
+    {
+      path: 'competition',
+      select: 'leagues'
+    },
+  ]).lean().exec(async function (err, data) {
+    if (err) {
+      logger.error(err);
+      res.status(400).send({
+        msg: 'Could not get map',
+        err: err.message,
+      });
+    } else {
+      let tiles = data.cells.filter(c => c.isTile && c.tile.reachable).map(c => Object({
+        x: c.x,
+        y: c.y,
+        z: c.z,
+        scoredItems: {
+          speedbump: true,
+          checkpoint: true,
+          ramp: true,
+          steps: true,
+          victims: {
+              top: true,
+              right: true,
+              left: true,
+              bottom: true,
+              floor: true
+          },
+          rescueKits: {
+              top: 2,
+              right: 2,
+              bottom: 2,
+              left: 2,
+              floor: 2
+          }
+        }
+      }));
+      
+      res.status(200).send(
+        scoreCalculator.calculateScore({
+          competition: data.competition,
+          team: {
+            league: data.league
+          },
+          map: data,
+          tiles: tiles,
+          LoPs: 0,
+          exitBonus: true,
+          misidentification: 0
+        })
+      );
     }
   });
 });

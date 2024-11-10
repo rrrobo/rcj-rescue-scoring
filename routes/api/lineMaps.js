@@ -11,6 +11,8 @@ const { lineRun } = require('../../models/lineRun');
 const { tileType } = require('../../models/lineMap');
 const { tileSet } = require('../../models/lineMap');
 const logger = require('../../config/logger').mainLogger;
+const initRun = require('../../helper/initRunData');
+const scoreCalculator = require('../../helper/scoreCalculator');
 
 privateRouter.get('/', getLineMaps);
 
@@ -155,6 +157,43 @@ publicRouter.get('/:map', function (req, res, next) {
       });
     } else {
       res.status(200).send(data);
+    }
+  });
+});
+
+adminRouter.get('/:map/maxScore', async function (req, res, next) {
+  const id = req.params.map;
+
+  if (!ObjectId.isValid(id)) {
+    return next();
+  }
+
+  lineMap.findById(id).populate([
+    {
+      path: 'competition',
+      select: 'leagues'
+    },
+  ]).select("competition league").lean().exec(async function (err, data) {
+    if (err) {
+      logger.error(err);
+      res.status(400).send({
+        msg: 'Could not get map',
+        err: err.message,
+      });
+    } else {
+      let run = await initRun.initLine(
+        {
+          competition: data.competition,
+          team: {
+            league: data.league
+          },
+          map: id,
+          isNL: data.league == "LineNL",
+          nl: {},
+          exitBonus: true
+        }, true
+      )
+      res.status(200).send(scoreCalculator.calculateScore(run));
     }
   });
 });
