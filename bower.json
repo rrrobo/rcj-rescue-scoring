@@ -37,7 +37,7 @@
     "pdfjs": "https://github.com/mozilla/pdf.js/releases/download/v4.3.136/pdfjs-4.3.136-dist.zip",
     "popper.js": "^1.16.0",
     "quill": "https://cdn.quilljs.com/1.3.7/quill.js",
-    "quill-image-drop-and-paste": "https://github.com/chenjuneking/quill-image-drop-and-paste.git#1.2.9",
+    "quill-image-drop-and-paste": "https://github.com/chenjuneking/quill-image-drop-and-paste.git#1.3.0",
     "quill-image-resize-module": "https://github.com/kensnyder/quill-image-resize-module.git",
     "quill.snow": "https://cdn.quilljs.com/1.3.6/quill.snow.css",
     "socket.io": "4.2.0",
