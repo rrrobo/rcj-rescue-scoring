@@ -1016,8 +1016,7 @@
             "most": "Most",
             "teamVote": "Vote for the team",
             "explanationOnly": "Only explanation (No question)",
-            "maxLength": "Maximum input length limit",
-            "characters": "characters"
+            "maxLength": "Maximum input length limit"
         },
         "review_editor": {
             "title": "Document Review Form Editor",
@@ -1047,7 +1046,8 @@
             "cantplay": "If the video does not play properly, click here to download it.",
             "uploading": "Uploading...",
             "mp4": "The format of the uploaded file should be mp4. If your file is in another format such as (.mov / .wmv / etc...), please convert it to mp4 format on your computer before uploading.",
-            "maxLength": "You can enter no more than following characters in this field:"
+            "maxLength": "You can enter no more than following characters in this field:",
+            "characters": "characters"
         },
         "review":{
             "reviewer": "Logged in reviewer: ",
