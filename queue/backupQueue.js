@@ -115,19 +115,28 @@ backupQueue.process('backup', function(job, done){
     }
   });
 
-  // Copy Suevey Folder
-  fs.copy(`./mailAttachment/${competitionId}`, `${folderPathTmp}/mailAttachment`, (err) => {
-    if(err){
-      done(new Error(err));
-    }else{
-      outputCount ++;
-      jobProgress += 50/maxCount;
-      job.progress(Math.floor(jobProgress));
-      if(outputCount == maxCount){
-        makeZip(job, done, dstPath, folderPathTmp);
+  // Copy Mail Attachment
+  if (fs.existsSync(`./mailAttachment/${competitionId}`)) {
+    fs.copy(`./mailAttachment/${competitionId}`, `${folderPathTmp}/mailAttachment`, (err) => {
+      if(err){
+        done(new Error(err));
+      }else{
+        outputCount ++;
+        jobProgress += 50/maxCount;
+        job.progress(Math.floor(jobProgress));
+        if(outputCount == maxCount){
+          makeZip(job, done, dstPath, folderPathTmp);
+        }
       }
+    });
+  } else {
+    outputCount ++;
+    jobProgress += 50/maxCount;
+    job.progress(Math.floor(jobProgress));
+    if(outputCount == maxCount){
+      makeZip(job, done, dstPath, folderPathTmp);
     }
-  });
+  }
 
   //Competition data
   competitiondb.competition
