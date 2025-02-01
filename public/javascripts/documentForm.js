@@ -25,7 +25,7 @@ app.constant('NG_QUILL_CONFIG', {
   
         ['clean'],                                         // remove formatting button
   
-        ['link', 'image', 'video']                         // link and image, video
+        ['link', 'image']                         // link and image, video
       ],
       imageResize: {
       },
