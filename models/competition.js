@@ -140,7 +140,8 @@ const competitionSchema = new Schema({
           'scale': {
             'least': {type: Number, default: 1},
             'most': {type: Number, default: 5}
-          }
+          },
+          'maxLength': {type: Number, default: null}
         }]
       }],
       'review': [{

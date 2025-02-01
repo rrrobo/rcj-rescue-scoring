@@ -221,6 +221,8 @@ block content
                                     span(style="margin-top:10px;") {{"document.editor.description" | translate}}
                                     ng-quill-editor(ng-model="i18n.description", ng-blur="save()")
                                     div(ng-if="question.type == 'input'", style="margin-top:10px;")
+                                        span {{"document.editor.maxLength" | translate}}
+                                        input.form-control(type='number', ng-model='question.maxLength' style="width:200px;margin-bottom: 10px;", ng-blur="save()")
                                         span {{"document.editor.hints" | translate}}
                                         ng-quill-editor(ng-model="i18n.example", ng-blur="save()")
                                     div(ng-if="question.type == 'select'", style="margin-top:10px;")

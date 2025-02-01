@@ -184,7 +184,8 @@ app.controller('FormEditorController', ['$scope', '$uibModal', '$log', '$http', 
             scale: {
                 least: 1,
                 most: 5
-            }
+            },
+            maxLength: null
         };
         $scope.blocks[block].questions.splice(number,0,tmp);
         $scope.save();

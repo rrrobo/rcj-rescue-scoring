@@ -39,7 +39,7 @@ app.constant('NG_QUILL_CONFIG', {
         headers: {}, // add custom headers, example { token: 'your-token'}
         // personalize successful callback and call next function to insert new url to the editor
         callbackOK: (serverResponse, next) => {
-            next(serverResponse.url);
+            next(serverResponse.url)
             Swal.close()
         },
         // personalize failed callback
@@ -131,6 +131,8 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
     $scope.updateTime = new Date().getTime()/1000;
 
     $scope.videoRefresh = false;
+
+    $scope.contentLength = [];
 
     $scope.rangeS =  (start, end) => [...Array((end - start) + 1)].map((_, i) => start + i);
 
@@ -384,4 +386,10 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
         return("/api/document/files/" + $scope.team._id + "/" + token + "/" + $scope.nameUploaded(name+'-thumbnail') + '?v=' + $scope.updateTime);
     }
 
+    $scope.contentChanged = function (editor, questionId, maxLength) {
+        $scope.contentLength[questionId] = editor.getLength();
+        if (maxLength) {
+            editor.deleteText(maxLength - 1, editor.getLength());
+        }
+      }
 }]);
