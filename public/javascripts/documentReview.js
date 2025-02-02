@@ -220,10 +220,10 @@ app.controller('DocumentReviewController', ['$scope', '$uibModal', '$log', '$htt
         $scope.updateReviewUploaded();
         
         $http.get("/api/competitions/" + competitionId + "/documents/" + $scope.team.league + "/review").then(function (response) {
-            $scope.blocks = response.data.blocks;
+            $scope.review = response.data.review.filter((r) => r.assignedReviewers.length == 0 || r.assignedReviewers.some((ar) => ar.reviewerId == userId && (ar.teamIds.some((at) => at == teamId) || ar.teamIds.length == 0)));
+            $scope.blocks = response.data.blocks.filter((b) => $scope.review.some((r) => r.linkedQuestionBlock.some((rl) => rl == b._id)));
             $scope.notifications = response.data.notifications;
             $scope.languages = response.data.languages;
-            $scope.review = response.data.review;
 
             $http.get("/api/document/answer/"+ $scope.team._id + "/" + token).then(function (response) {
                 $scope.answers = response.data;

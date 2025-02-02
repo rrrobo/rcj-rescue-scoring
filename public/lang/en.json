@@ -1016,14 +1016,19 @@
             "most": "Most",
             "teamVote": "Vote for the team",
             "explanationOnly": "Only explanation (No question)",
-            "maxLength": "Maximum input length limit"
+            "maxLength": "Maximum input length limit",
+            "linkedQuestionBlockName": "Linked question blocks"
         },
         "review_editor": {
             "title": "Document Review Form Editor",
             "export": "Export this review forms to Json file",
             "import": "Importing review forms from Json files",
             "languageWarn": "The language settings are linked to the settings of the forms for the team.",
-            "weight": "Score weight(0~1)"
+            "weight": "Score weight(0~1)",
+            "assignReviewer": "Reviewer assignment",
+            "reviewer": "Reviewer name",
+            "assignedTeams": "Assigned teams",
+            "emptyAssignment": "Since there is no assignment information, all reviewers can evaluate."
         },
         "form":{
             "languageError": "This form is not available in your language, so it will be displayed in an alternative language.",

@@ -573,7 +573,7 @@ privateRouter.get('/:competition/:league/teams', function (req, res, next) {
         competition: id,
         league: { $in: leagueArr },
       },
-      '_id name competition league inspected country checkin'
+      '_id name competition league inspected country checkin teamCode'
     )
     .lean()
     .exec(function (err, data) {

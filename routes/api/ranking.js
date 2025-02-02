@@ -688,6 +688,7 @@ async function getDocumentScore(competitionId, leagueId) {
   let questions = {};
   let weights = {};
   let blockTitles = [];
+  let questionReviewerAssignments = {};
   for (let block of reviewQuestions) {
     if (block.weight == 0) continue;
     weights[block._id] = block.weight;
@@ -699,9 +700,11 @@ async function getDocumentScore(competitionId, leagueId) {
       if (question.type == "scale") {
         if (questions[block._id] == null) questions[block._id] = [];
         questions[block._id].push(question._id);
+        questionReviewerAssignments[question._id] = block.assignedReviewers;
       }
     }
   }
+
 
   let result = [];
   let blockScores = {};
@@ -714,7 +717,12 @@ async function getDocumentScore(competitionId, leagueId) {
       for (const [key, value] of Object.entries(review.comments)) {
         if (comments[key] == null) comments[key] = [];
         if (value == '') continue;
-        comments[key].push(value);
+
+        let assignments = questionReviewerAssignments[key];
+        if (assignments == undefined) continue;
+        if (assignments.length == 0 || assignments.some((a) => a.reviewerId.equals(review.reviewer) && (a.teamIds.some((t) => t.equals(team._id)) || a.teamIds.length == 0))) {
+          comments[key].push(value);
+        }
       }
     }
     
@@ -723,11 +731,25 @@ async function getDocumentScore(competitionId, leagueId) {
       let blockScore = 0;
       let warning = false;
       let blockReviewerNum = [];
+      let expectedReviewerNum = [];
       for (let questionId of questions[blockId]) {
         if (comments[questionId] == null) continue;
         let ratings = comments[questionId].map(str => parseInt(str));
         let numReviewer = ratings.length;
         blockReviewerNum.push(numReviewer);
+
+        let expectedReviewerCount = 0;
+        for (let r of questionReviewerAssignments[questionId]) {
+          if (r.teamIds.length == 0) {
+            expectedReviewerCount++;
+            continue;
+          }
+          if (r.teamIds.some((t) => t.equals(team._id))) {
+            expectedReviewerCount++;
+            continue;
+          }
+        }
+        expectedReviewerNum.push(expectedReviewerCount);
 
         let score = 0;
         if (numReviewer >= MINIMUM_REVIEWER) {
@@ -739,17 +761,17 @@ async function getDocumentScore(competitionId, leagueId) {
         }
         blockScore += score * penalty;
       }
+      
       team.details.push({
         blockId,
         score: blockScore,
-        warning: Math.min(...blockReviewerNum) != Math.max(...blockReviewerNum),
-        reviewerNum: Math.max(...blockReviewerNum)
+        warning: blockReviewerNum.toString() != expectedReviewerNum.toString() ,
+        reviewerNum: Math.min(...blockReviewerNum),
+        expectedReviewerNum: Math.max(...expectedReviewerNum)
       })
       if (blockScores[blockId] == null) blockScores[blockId] = [];
       blockScores[blockId].push(blockScore);
     }
-
-    team.reviewerNum = Math.max(...team.details.map(d => d.reviewerNum));
     result.push(team);
   }
 

@@ -92,26 +92,26 @@ block content
                 .alert.alert-danger(role='alert',style="margin-bottom: 20px;", ng-if="currentLang != displayLang")
                     span {{"document.form.languageError" | translate}}
                 //Team basic information
-                .card(style="margin-bottom:20px;")
-                    h5.card-header
-                        i.fas.fa-user-friends &nbsp;
-                        | {{"document.form.basicInformation" | translate}}
-                    .card-body
-                        div(style="margin-bottom:10px;")
-                            strong {{"document.form.teamName" | translate}}
-                        div(style="font-size:20px;")
-                            span(ng-bind="team.teamCode + ' '" ng-show="team.teamCode")
-                            span(ng-bind="team.name")
-                        hr
-                        div(style="margin-bottom:10px;")
-                            strong {{"common.league" | translate}}
-                        div(style="font-size:20px;")
-                            p(ng-bind="league.name")
-                        hr
-                        div(style="margin-bottom:10px;")
-                            strong {{"common.region" | translate}}
-                        div(style="font-size:20px;")
-                            p(ng-bind="team.country")
+                //- .card(style="margin-bottom:20px;")
+                //-     h5.card-header
+                //-         i.fas.fa-user-friends &nbsp;
+                //-         | {{"document.form.basicInformation" | translate}}
+                //-     .card-body
+                //-         div(style="margin-bottom:10px;")
+                //-             strong {{"document.form.teamName" | translate}}
+                //-         div(style="font-size:20px;")
+                //-             span(ng-bind="team.teamCode + ' '" ng-show="team.teamCode")
+                //-             span(ng-bind="team.name")
+                //-         hr
+                //-         div(style="margin-bottom:10px;")
+                //-             strong {{"common.league" | translate}}
+                //-         div(style="font-size:20px;")
+                //-             p(ng-bind="league.name")
+                //-         hr
+                //-         div(style="margin-bottom:10px;")
+                //-             strong {{"common.region" | translate}}
+                //-         div(style="font-size:20px;")
+                //-             p(ng-bind="team.country")
 
                 div(ng-repeat="(blockIndex, block) in blocks track by $index")
                     .card(ng-style="{border: '3px solid #' + block.color}", style="margin-bottom:20px;")

@@ -1014,14 +1014,19 @@
             "most": "最高",
             "teamVote": "チーム投票",
             "explanationOnly": "説明のみ（設問なし）",
-            "maxLength": "最大文字数"
+            "maxLength": "最大文字数",
+            "linkedQuestionBlockName": "リンクされた質問ブロック"
         },
         "review_editor": {
             "title": "ドキュメント　レビューフォームエディタ",
             "export": "このレビューフォームをJsonファイルにエクスポート",
             "import": "レビューフォームをJsonファイルからインポート",
             "languageWarn": "言語設定は，チーム向けフォームの設定と連動しています．",
-            "weight": "スコアの重み(0~1)"
+            "weight": "スコアの重み(0~1)",
+            "assignReviewer": "レビュアーの割り当て",
+            "reviewer": "レビュアーの名前",
+            "assignedTeams": "割り当てられたチーム",
+            "emptyAssignment": "割り当て情報が登録されていないため、全レビューワーが評価可能です。"
         },
         "form":{
             "languageError": "このフォームは，お使いの言語に対応していませんので，代替言語で表示します．",
