@@ -144,9 +144,7 @@ app.controller('FormEditorController', ['$scope', '$uibModal', '$log', '$http', 
     })
 
     $http.get("/api/users").then(function (response) {
-        $scope.users = response.data.filter((c) => c.superDuperAdmin || c.competitions.some((cc) => cc.id == competitionId && cc.accessLevel >= 5))
-
-        console.log($scope.users)
+        $scope.users = response.data.filter((c) => c.competitions.some((cc) => cc.id == competitionId && cc.role.includes("INTERVIEW")))
     })
 
     $http.get(`/api/competitions/${competitionId}/${leagueId}/teams`).then(function (response) {

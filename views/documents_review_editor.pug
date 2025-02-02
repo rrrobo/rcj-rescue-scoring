@@ -153,6 +153,8 @@ block content
                                         button.btn.btn-danger(type='button', style="float:right;margin-left:5px;", ng-click="block.assignedReviewers.splice($index, 1)")
                                             i.fas.fa-trash-alt
                         h4(ng-show="block.assignedReviewers.length == 0") {{"document.review_editor.emptyAssignment" | translate}}
+                            span(ng-repeat="user in users") &nbsp;{{user.username}}
+                                span(ng-show="!$last") ,
                         div(style="text-align : center;margin-top:10px;")
                             .btn-group                                
                                 button.btn.btn-success(type='button',ng-click="block.assignedReviewers.push({'reviewerId': '', teamIds: []})")

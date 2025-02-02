@@ -7,6 +7,7 @@ const { ObjectId } = require('mongoose').Types;
 const { lineRun } = require('../../models/lineRun');
 const { mazeRun } = require('../../models/mazeRun');
 const { simRun } = require('../../models/simRun');
+const { user } = require('../../models/user');
 const auth = require('../../helper/authLevels');
 const { ACCESSLEVELS } = require('../../models/user');
 const competitiondb = require('../../models/competition');
@@ -684,6 +685,10 @@ async function getDocumentScore(competitionId, leagueId) {
     team: { $in: teamIds }
   }).lean().exec();
 
+  // Retrieve all users who has INTERVIEW role for this competition
+  let users = await user.find().lean().exec();
+  let authorizedUsers = users.filter((u) => u.competitions.some((c) => c.id == competitionId && c.role.includes("INTERVIEW"))).map((u) => u._id);
+
   // Questions list
   let questions = {};
   let weights = {};
@@ -720,8 +725,10 @@ async function getDocumentScore(competitionId, leagueId) {
 
         let assignments = questionReviewerAssignments[key];
         if (assignments == undefined) continue;
-        if (assignments.length == 0 || assignments.some((a) => a.reviewerId.equals(review.reviewer) && (a.teamIds.some((t) => t.equals(team._id)) || a.teamIds.length == 0))) {
-          comments[key].push(value);
+        if(authorizedUsers.some((au) => au.equals(review.reviewer))) {
+          if (assignments.length == 0 || assignments.some((a) => a.reviewerId.equals(review.reviewer) && (a.teamIds.some((t) => t.equals(team._id)) || a.teamIds.length == 0))) {
+            comments[key].push(value);
+          }
         }
       }
     }
@@ -739,14 +746,18 @@ async function getDocumentScore(competitionId, leagueId) {
         blockReviewerNum.push(numReviewer);
 
         let expectedReviewerCount = 0;
-        for (let r of questionReviewerAssignments[questionId]) {
-          if (r.teamIds.length == 0) {
-            expectedReviewerCount++;
-            continue;
-          }
-          if (r.teamIds.some((t) => t.equals(team._id))) {
-            expectedReviewerCount++;
-            continue;
+        if (questionReviewerAssignments[questionId].length == 0) {
+          expectedReviewerCount += authorizedUsers.length;
+        } else {
+          for (let r of questionReviewerAssignments[questionId]) {
+            if (r.teamIds.length == 0) {
+              expectedReviewerCount++;
+              continue;
+            }
+            if (r.teamIds.some((t) => t.equals(team._id))) {
+              expectedReviewerCount++;
+              continue;
+            }
           }
         }
         expectedReviewerNum.push(expectedReviewerCount);
@@ -765,7 +776,7 @@ async function getDocumentScore(competitionId, leagueId) {
       team.details.push({
         blockId,
         score: blockScore,
-        warning: blockReviewerNum.toString() != expectedReviewerNum.toString() ,
+        warning: (blockReviewerNum.toString() != expectedReviewerNum.toString()) ||  Math.max(...expectedReviewerNum) == 0,
         reviewerNum: Math.min(...blockReviewerNum),
         expectedReviewerNum: Math.max(...expectedReviewerNum)
       })

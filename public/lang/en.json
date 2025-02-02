@@ -1028,7 +1028,7 @@
             "assignReviewer": "Reviewer assignment",
             "reviewer": "Reviewer name",
             "assignedTeams": "Assigned teams",
-            "emptyAssignment": "Since there is no assignment information, all reviewers can evaluate."
+            "emptyAssignment": "Since there is no assignment information, following users can evaluate: "
         },
         "form":{
             "languageError": "This form is not available in your language, so it will be displayed in an alternative language.",

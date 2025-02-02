@@ -1026,7 +1026,7 @@
             "assignReviewer": "レビュアーの割り当て",
             "reviewer": "レビュアーの名前",
             "assignedTeams": "割り当てられたチーム",
-            "emptyAssignment": "割り当て情報が登録されていないため、全レビューワーが評価可能です。"
+            "emptyAssignment": "割り当て情報が登録されていないため、次のユーザーが評価可能です："
         },
         "form":{
             "languageError": "このフォームは，お使いの言語に対応していませんので，代替言語で表示します．",

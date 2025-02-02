@@ -697,7 +697,7 @@ privateRouter.get('/review/:teamId', function (req, res, next) {
     return next();
   }
 
-  competitiondb.team.findById(teamId).exec(function (err, dbTeam) {
+  competitiondb.team.findById(teamId).exec(async function (err, dbTeam) {
     if (err) {
       if (!err) err = { message: 'No team found' };
       res.status(400).send({
@@ -706,7 +706,7 @@ privateRouter.get('/review/:teamId', function (req, res, next) {
       });
     } else if (dbTeam) {
       if (
-        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW)
+        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
       ) {
         documentDb.review
           .find({
@@ -746,7 +746,7 @@ privateRouter.get('/review/:teamId/myComments', function (req, res, next) {
     return next();
   }
 
-  competitiondb.team.findById(teamId).exec(function (err, dbTeam) {
+  competitiondb.team.findById(teamId).exec(async function (err, dbTeam) {
     if (err) {
       if (!err) err = { message: 'No team found' };
       res.status(404).send({
@@ -755,7 +755,7 @@ privateRouter.get('/review/:teamId/myComments', function (req, res, next) {
       });
     } else if (dbTeam) {
       if (
-        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW)
+        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
       ) {
         documentDb.review
           .findOne({
@@ -908,7 +908,7 @@ privateRouter.put('/review/:teamId', function (req, res, next) {
     return next();
   }
 
-  competitiondb.team.findById(teamId).exec(function (err, dbTeam) {
+  competitiondb.team.findById(teamId).exec(async function (err, dbTeam) {
     if (err) {
       if (!err) err = { message: 'No team found' };
       res.status(400).send({
@@ -917,7 +917,7 @@ privateRouter.put('/review/:teamId', function (req, res, next) {
       });
     } else if (dbTeam) {
       if (
-        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.JUDGE)
+        await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
       ) {
         documentDb.review
           .findOne({
@@ -1010,7 +1010,7 @@ privateRouter.post(
     competitiondb.team
       .findById(teamId)
       .select('competition')
-      .exec(function (err, dbTeam) {
+      .exec(async function (err, dbTeam) {
         if (err || dbTeam == null) {
           if (!err) err = { message: 'No team found' };
           res.status(400).send({
@@ -1018,11 +1018,7 @@ privateRouter.post(
             err: err.message,
           });
         } else if (dbTeam) {
-          const userAuth = auth.authCompetition(
-            req.user,
-            dbTeam.competition,
-            ACCESSLEVELS.JUDGE
-          );
+          const userAuth = await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
           if (userAuth) {
             fs.mkdirs(
               `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review/${req.user.username}`,
@@ -1141,7 +1137,7 @@ privateRouter.get('/review/files/:teamId', function (req, res, next) {
   competitiondb.team
     .findById(teamId)
     .select('competition')
-    .exec(function (err, dbTeam) {
+    .exec(async function (err, dbTeam) {
       if (err || dbTeam == null) {
         if (!err) err = { message: 'No team found' };
         res.status(400).send({
@@ -1150,7 +1146,7 @@ privateRouter.get('/review/files/:teamId', function (req, res, next) {
         });
       } else if (dbTeam) {
         if (
-          auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW)
+          auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
         ) {
           const path = `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review`;
 
@@ -1182,7 +1178,7 @@ privateRouter.get(
     competitiondb.team
       .findById(teamId)
       .select('competition')
-      .exec(function (err, dbTeam) {
+      .exec(async function (err, dbTeam) {
         if (err || dbTeam == null) {
           if (!err) err = { message: 'No team found' };
           res.status(400).send({
@@ -1195,7 +1191,7 @@ privateRouter.get(
               req.user,
               dbTeam.competition,
               ACCESSLEVELS.VIEW
-            )
+            ) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
           ) {
             const path = `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review/${userName}/${sanitize(fileName)}`;
             fs.stat(path, (err, stat) => {
@@ -1285,7 +1281,7 @@ privateRouter.post(
     competitiondb.team
       .findById(teamId)
       .select('competition')
-      .exec(function (err, dbTeam) {
+      .exec(async function (err, dbTeam) {
         if (err || dbTeam == null) {
           if (!err) err = { message: 'No team found' };
           res.status(400).send({
@@ -1293,11 +1289,7 @@ privateRouter.post(
             err: err.message,
           });
         } else if (dbTeam) {
-          const userAuth = auth.authCompetition(
-            req.user,
-            dbTeam.competition,
-            ACCESSLEVELS.JUDGE
-          );
+          const userAuth =  await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
           if (userAuth) {
             fs.mkdirs(
               `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review/${req.user.username}/usercontent`,
@@ -1359,7 +1351,7 @@ privateRouter.get(
     competitiondb.team
       .findById(teamId)
       .select('competition')
-      .exec(function (err, dbTeam) {
+      .exec(async function (err, dbTeam) {
         if (err || dbTeam == null) {
           if (!err) err = { message: 'No team found' };
           res.status(400).send({
@@ -1372,7 +1364,7 @@ privateRouter.get(
               req.user,
               dbTeam.competition,
               ACCESSLEVELS.VIEW
-            )
+            ) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
           ) {
             const path = `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review/${userName}/usercontent/${sanitize(fileName)}`;
             fs.stat(path, (err, stat) => {

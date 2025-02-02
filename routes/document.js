@@ -57,7 +57,7 @@ privateRouter.get('/review/:teamId', function (req, res, next) {
   competitiondb.team
     .findById(teamId)
     .select('competition document.token')
-    .exec(function (err, dbTeam) {
+    .exec(async function (err, dbTeam) {
       if (err || dbTeam == null) {
         if (!err) err = { message: 'No team found' };
         res.status(400).send({
@@ -66,7 +66,7 @@ privateRouter.get('/review/:teamId', function (req, res, next) {
         });
       } else if (dbTeam) {
         if (
-          auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.JUDGE)
+          await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
         ) {
           res.render('document_review', {
             competition: dbTeam.competition,
@@ -92,7 +92,7 @@ privateRouter.get('/reviewed/:teamId', function (req, res, next) {
   competitiondb.team
     .findById(teamId)
     .select('competition document.token')
-    .exec(function (err, dbTeam) {
+    .exec(async function (err, dbTeam) {
       if (err || dbTeam == null) {
         if (!err) err = { message: 'No team found' };
         res.status(400).send({
@@ -101,7 +101,7 @@ privateRouter.get('/reviewed/:teamId', function (req, res, next) {
         });
       } else if (dbTeam) {
         if (
-          auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW)
+          auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
         ) {
           res.render('document_reviewed', {
             competition: dbTeam.competition,
