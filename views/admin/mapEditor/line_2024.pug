@@ -133,8 +133,9 @@ block content
                                     i.fas.fa-arrows-alt-v(aria-hidden='true')
                             button.btn.btn-outline-dark(type='button', ng-click='changeFloor(zz)', ng-repeat='zz in range(height)', ng-class='{active: zz == z}')  {{zz}} 
                     .col-3(style="text-align:right;")
-                        button.btn.btn-info(type='button', ng-click='openMaxScore()')
-                            i.fas.fa-calculator
+                        if !pubService
+                            button.btn.btn-info(type='button', ng-click='openMaxScore()')
+                                i.fas.fa-calculator
                         
                 .row(ng-repeat='r in range(length)')
                     .slot(ng-repeat='c in range(width)')

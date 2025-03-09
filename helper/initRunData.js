@@ -112,7 +112,21 @@ module.exports.initLine = async function (run, scored = false) {
         "found": scored,
         "identified": scored
       });
+    } else {
+      // WL Victim Backet
+      run.rescueOrder = [];
+      if (scored) {
+        run.rescueOrder = run.rescueOrder.concat(new Array(map.victims.live).fill({
+          "victimType": "LIVE",
+          "zoneType": "GREEN"
+        }))
+        run.rescueOrder = run.rescueOrder.concat(new Array(map.victims.dead).fill({
+          "victimType": "DEAD",
+          "zoneType": "RED"
+        }))
+      }
     }
+    run.map = map;
     return run;
   } else {
     return null;

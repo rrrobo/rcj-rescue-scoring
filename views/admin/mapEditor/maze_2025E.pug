@@ -37,7 +37,7 @@ block location
 block content
     if !pubService
         h3 {{competition.name}}
-    h1 {{league.name}} {{"admin.mazeMapEditor.title" | translate}} 2024
+    h1 {{league.name}} {{"admin.mazeMapEditor.title" | translate}} 2025
     p {{"admin.mazeMapEditor.desc" | translate}}
     h2(ng-if='parent') {{"admin.mazeMapEditor.parent" | translate}}
     button.btn.btn-info(type='button', ng-click='saveMap(parent)', ng-if='parent') {{"admin.mazeMapEditor.backToParent" | translate}}
@@ -176,8 +176,9 @@ block content
                                         img.tile-image(ng-src='/images/green_floor.png', ng-show="cells[c+','+r+','+z].tile.victims.floor == 'Green'")
 
             .col-1 
-                button.btn.btn-info(type='button', ng-click='openMaxScore()')
-                    i.fas.fa-calculator
+                if !pubService
+                    button.btn.btn-info(type='button', ng-click='openMaxScore()')
+                        i.fas.fa-calculator
         hr
         .row
             .col-6
