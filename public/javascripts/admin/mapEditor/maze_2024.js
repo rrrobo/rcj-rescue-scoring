@@ -670,7 +670,7 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
         });
     }
 
-    $scope.saveMap = function (loc, callback = function() {}) {
+    $scope.saveMap = function (loc, callback = null) {
         if ($scope.startNotSet()) {
             alert("You must define a starting tile by clicking a tile");
             return;
@@ -691,23 +691,27 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
         };
         if (mapId) {
             $http.put("/api/maps/maze/" + mapId, map).then(function (response) {
-                Toast.fire({
-                    type: 'success',
-                    title: "Updated map"
-                })
-                console.log(response.data);
-                if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
-                callback();
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'success',
+                        title: "Updated map"
+                    })
+                    if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
+                } else {
+                    callback();
+                }
             }, function (response) {
-                console.log(response);
                 console.log("Error: " + response.statusText);
-                Toast.fire({
-                    type: 'error',
-                    title: "Error",
-                    html: response.data.msg
-                })
-                if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
-                callback();
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'error',
+                        title: "Error",
+                        html: response.data.msg
+                    })
+                    if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
+                } else {
+                    callback();
+                }
             });
         } else {
             $http.post("/api/maps/maze", map).then(function (response) {
@@ -718,15 +722,17 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
                 if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
                 else window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + response.data.id)
             }, function (response) {
-                console.log(response);
                 console.log("Error: " + response.statusText);
-                Toast.fire({
-                    type: 'error',
-                    title: "Error",
-                    html: response.data.msg
-                })
-                if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
-                callback();
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'error',
+                        title: "Error",
+                        html: response.data.msg
+                    })
+                    if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
+                } else {
+                    callback();
+                }
             });
         }
     }

@@ -331,7 +331,7 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
     }
 
 
-    $scope.saveMap = function (callback = function(){}) {
+    $scope.saveMap = function (callback = null) {
         if ($scope.startNotSet()) {
             Toast.fire({
                 type: 'error',
@@ -368,19 +368,25 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
 
         if (mapId) {
             $http.put("/api/maps/line/" + mapId, map).then(function (response) {
-                Toast.fire({
-                    type: 'success',
-                    title: "Updated map"
-                })
-                callback();
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'success',
+                        title: "Updated map"
+                    })
+                } else {
+                    callback();
+                }
             }, function (response) {
                 console.log("Error: " + response.statusText);
-                Toast.fire({
-                    type: 'error',
-                    title: "Error",
-                    html: response.data.msg
-                })
-                callback();
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'error',
+                        title: "Error",
+                        html: response.data.msg
+                    })
+                } else {
+                    callback();
+                }                
             });
         } else {
             $http.post("/api/maps/line", map).then(function (response) {
@@ -390,14 +396,16 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
                 })
                 window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + response.data.id)
             }, function (response) {
-                console.log(response);
                 console.log("Error: " + response.statusText);
-                Toast.fire({
-                    type: 'error',
-                    title: "Error",
-                    html: response.data.msg
-                })
-                callback();
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'error',
+                        title: "Error",
+                        html: response.data.msg
+                    })
+                } else {
+                    callback();
+                }
             });
         }
     }
