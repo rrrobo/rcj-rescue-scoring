@@ -779,6 +779,9 @@ adminRouter.post('/', function (req, res) {
       path = `${__dirname}/../../backup/${competitionid}`;
       mkdirp.sync(path);
 
+      path = `${__dirname}/../../mailAttachment/${competitionid}`;
+      mkdirp.sync(path);
+
       userdb.user.findById(userid).exec(function (err, dbUser) {
         if (err) {
           logger.error(err);
