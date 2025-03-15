@@ -66,8 +66,6 @@ publicRouter.get('/competition/:competitionId', function (req, res, next) {
 
   if (req.query.minimum && !normalized) {
     query.select('competition round team field status started startTime sign');
-  } else if (req.query.timetable && !normalized) {
-    query.select('competition round team field startTime group');
   } else {
     query.select(
       'competition round team field map score time status started comment startTime sign LoPs exitBonus foundVictims misidentification normalizationGroup'
