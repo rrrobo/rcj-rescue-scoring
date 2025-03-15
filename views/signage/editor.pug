@@ -1,5 +1,5 @@
 //- -*- tab-width: 2 -*-
-extends includes/layout
+extends ../includes/layout
 
 block vars
   - var ngAppDef = 'SignEditor'
@@ -7,7 +7,7 @@ block vars
 append scripts
   script.
     var sigId = "#{id}"
-  script(src="/javascripts/sign_editor.js")
+  script(src="/javascripts/signage/editor.js")
 
 append css
     style.

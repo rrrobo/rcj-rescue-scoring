@@ -124,7 +124,7 @@ app.controller('SignEditorController', ['$scope', '$uibModal', '$log', '$http', 
                     }
                 })
                 if(url){
-                    $scope.contents[index].url = "/signage_content/" + url;
+                    $scope.contents[index].url = "/signage_content/" + encodeURIComponent(url);
                     $scope.$apply();
                 }
             });
@@ -153,7 +153,7 @@ app.controller('SignEditorController', ['$scope', '$uibModal', '$log', '$http', 
                     }
                 })
                 if(url){
-                    $scope.contents[index].url = "/signage_content/" + url;
+                    $scope.contents[index].url = "/signage_content/" + encodeURIComponent(url);
                     $scope.$apply();
                 }
             });

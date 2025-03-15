@@ -15,16 +15,20 @@ const ruleDetector = require('../helper/ruleDetector');
 /* GET home page. */
 
 adminRouter.get('/setting', function (req, res) {
-  res.render('signage_setting', { user: req.user });
+  res.render('signage/setting', { user: req.user });
+});
+
+adminRouter.get('/setting/files', function (req, res) {
+  res.render('signage/files', { user: req.user });
 });
 
 adminRouter.get('/setting/editor', function (req, res) {
-  res.render('signage_editor', { user: req.user });
+  res.render('signage/editor', { user: req.user });
 });
 
 adminRouter.get('/setting/editor/:id', function (req, res) {
   const { id } = req.params;
-  res.render('signage_editor', { user: req.user, id });
+  res.render('signage/editor', { user: req.user, id });
 });
 
 privateRouter.get('/games/:competitionid/', function (req, res, next) {
