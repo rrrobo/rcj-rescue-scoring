@@ -101,6 +101,8 @@ app.controller('FormEditorController', ['$scope', '$uibModal', '$log', '$http', 
                 });
             }
         }
+        if(response.data.maxLength) $scope.maxLength = response.data.maxLength;
+        else $scope.maxLength = null;
     })
 
     $http.get("/api/competitions/leagues/"+leagueId).then(function (response) {
@@ -291,7 +293,8 @@ app.controller('FormEditorController', ['$scope', '$uibModal', '$log', '$http', 
                 league: leagueId,
                 notifications: $scope.notifications,
                 blocks: $scope.blocks,
-                languages: $scope.languages
+                languages: $scope.languages,
+                maxLength: $scope.maxLength
             }
         }
       
@@ -328,7 +331,8 @@ app.controller('FormEditorController', ['$scope', '$uibModal', '$log', '$http', 
         var data = {
             notifications: $scope.notifications,
             blocks: $scope.blocks,
-            languages: $scope.languages
+            languages: $scope.languages,
+            maxLength: $scope.maxLength
         };
         remove_id(data);
 
@@ -361,6 +365,7 @@ app.controller('FormEditorController', ['$scope', '$uibModal', '$log', '$http', 
                 $scope.notifications = data.notifications;
                 $scope.blocks = data.blocks;
                 $scope.languages = data.languages;
+                $scope.maxLength = data.maxLength;
                 $scope.$apply();
             }
 

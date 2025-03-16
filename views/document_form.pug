@@ -46,6 +46,9 @@ block navbar
             button.btn.btn-primary(type='button', ng-click="changeLocale()", style="padding:2px 5px 0px 3px;margin-right:10px;")
                 i.fas.fa-language(style="font-size:30px;")
             if editable
+                button.btn.btn-lg.btn-light(type='button',style="padding:1px 5px 0px 5px;font-size:22px;margin-right:10px;",ng-style="{color: maxLength < totalLength() ? '#e74c3c':'#000'}")
+                    i.fas.fa-pen &nbsp;
+                    | {{totalLength()}}
                 button.btn.btn-lg.btn-success(type='button', ng-click='save()',style="padding:1px 5px 0px 5px;font-size:22px;")
                     i.fas.fa-save &nbsp;
                     | {{"common.save" | translate}}
@@ -95,7 +98,14 @@ block content
                         strong {{"common.region" | translate}}
                     div(style="font-size:20px;")
                         p(ng-bind="team.country")
-
+            .alert.alert-warning(role='alert', ng-if="maxLength != null")
+                h4.alert-heading {{"document.editor.maxLength" | translate}}:
+                    strong(ng-bind="maxLength")
+                    span  {{"document.form.characters" | translate}}
+                p {{"document.form.lengthLimit" | translate}}
+                p {{"document.form.currentLength" | translate}}:&nbsp;
+                    | {{totalLength()}} {{"document.form.characters" | translate}}
+                strong(ng-show="maxLength < totalLength()", style="color: #e74c3c") {{"document.form.lengthLimitExceed" | translate}}
             div(ng-repeat="(blockIndex, block) in blocks track by $index")
                 .card(ng-style="{border: '3px solid #' + block.color}", style="margin-bottom:20px;")
                     h5.card-header(ng-bind="langContent(block.i18n, 'title')")

@@ -144,6 +144,7 @@ const competitionSchema = new Schema({
           'maxLength': {type: Number, default: null}
         }]
       }],
+      'maxLength': {type: Number, default: null},
       'review': [{
         'i18n':[{
           'language' : {type: String, default: ''},

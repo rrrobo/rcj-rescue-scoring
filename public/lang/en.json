@@ -1051,7 +1051,10 @@
             "uploading": "Uploading...",
             "mp4": "The format of the uploaded file should be mp4. If your file is in another format such as (.mov / .wmv / etc...), please convert it to mp4 format on your computer before uploading.",
             "maxLength": "You can enter no more than following characters in this field:",
-            "characters": "characters"
+            "characters": "characters",
+            "lengthLimit": "This form has a character limit. If you enter more than the specified number of characters, you will not be able to save the form.",
+            "currentLength": "The current number of characters",
+            "lengthLimitExceed": "You have exceeded the character limit."
         },
         "review":{
             "reviewer": "Logged in reviewer: ",

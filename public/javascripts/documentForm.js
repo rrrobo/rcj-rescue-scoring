@@ -47,7 +47,7 @@ function imageUpload(imageDataUrl, type, imageData) {
         })
         .fail(function() {
             Swal.fire({
-                icon: 'error',
+                type: 'error',
                 title: 'Oops...',
                 text: "Upload failed"
             })
@@ -187,6 +187,27 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
     // = translationId;
     });
 
+    let length_err_title;
+    $translate('document.form.lengthLimitExceed').then(function (val) {
+        length_err_title = val;
+    }, function (translationId) {
+    // = translationId;
+    });
+
+    let length_err_max_length;
+    $translate('document.form.maxLength').then(function (val) {
+        length_err_max_length = val;
+    }, function (translationId) {
+    // = translationId;
+    });
+
+    let length_err_current_length;
+    $translate('document.form.currentLength').then(function (val) {
+        length_err_current_length = val;
+    }, function (translationId) {
+    // = translationId;
+    });
+
 
     const currentLang = $translate.proposedLanguage() || $translate.use();
     const availableLangs =  $translate.getAvailableLanguageKeys();
@@ -223,6 +244,7 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
             $scope.blocks = response.data.blocks;
             $scope.notifications = response.data.notifications;
             $scope.languages = response.data.languages;
+            $scope.maxLength = response.data.maxLength;
 
             $http.get("/api/document/answer/"+ $scope.team._id + "/" + token).then(function (response) {
                 $scope.answers = response.data;
@@ -260,6 +282,15 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
     }
 
     $scope.save = function () {
+        // Check total length count
+        if ($scope.totalLength() > $scope.maxLength) {
+            Swal.fire({
+                type: 'error',
+                title: length_err_title,
+                html: `${length_err_max_length} ${$scope.maxLength}<br>${length_err_current_length}: ${$scope.totalLength()}`
+            })
+            return;
+        }
         $http.put("/api/document/answer/" + $scope.team._id + "/" + token, $scope.answers).then(function (response) {
             Toast.fire({
                 type: 'success',
@@ -461,5 +492,9 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
         if (maxLength) {
             editor.deleteText(maxLength - 1, editor.getLength());
         }
-      }
+    }
+    
+    $scope.totalLength = function() {
+        return Object.values($scope.contentLength).reduce((total, length) => total + length, 0);
+    };
 }]);

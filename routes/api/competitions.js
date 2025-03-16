@@ -251,6 +251,7 @@ adminRouter.put('/:competitionid', function (req, res, next) {
                 l.languages = data.documents.languages;
               if (data.documents.review != null)
                 l.review = data.documents.review;
+              l.maxLength = data.documents.maxLength;
               updated = true;
             }
           }
@@ -261,6 +262,7 @@ adminRouter.put('/:competitionid', function (req, res, next) {
               blocks: data.documents.blocks,
               languages: data.documents.languages,
               review: data.documents.review,
+              maxLength: data.documents.maxLength
             };
             dbCompetition.documents.leagues.push(tmp);
           }
