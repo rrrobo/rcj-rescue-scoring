@@ -10,6 +10,8 @@ const { ObjectId } = require('mongoose').Types;
 const fs = require('fs');
 const competitiondb = require('../../models/competition');
 const logger = require('../../config/logger').mainLogger;
+const mime = require('mime');
+const multer = require('multer');
 
 const signagedb = competitiondb.signage;
 
@@ -34,6 +36,32 @@ privateRouter.get('/', function (req, res) {
         res.status(200).send(data);
       }
     });
+});
+
+adminRouter.get('/contentList', function (req, res, next) {
+  let path = `${process.cwd()}/public/signage_content`;
+  fs.readdir(path, { withFileTypes: true }, (err, dirents) => {
+    if (err) {
+      res.status(500).send({
+        msg: 'Could not get file list'
+      });
+      return;
+    }
+
+    const d = [];
+    for (const dirent of dirents) {
+      if (!dirent.isDirectory()) {
+        let type = mime.getType(dirent.name);
+        if (type == "text/html") continue;
+        d.push({
+          name: dirent.name,
+          path: `/signage_content/${encodeURIComponent(dirent.name)}`,
+          type: type
+        });
+      }
+    }
+    res.send(d);
+  });
 });
 
 adminRouter.get('/contentList/img', function (req, res, next) {
@@ -67,6 +95,56 @@ adminRouter.get('/contentList/mov', function (req, res, next) {
       );
     });
     res.status(200).send(fileList);
+  });
+});
+
+adminRouter.post('/contentList/upload', function (req, res, next) {
+  const destination = `${process.cwd()}/public/signage_content`;
+  if (!fs.existsSync(destination)) {
+    mkdirp.sync(destination);
+  }
+  const storage = multer.diskStorage({
+    destination(req, file, callback) {
+      callback(
+        null,
+        destination
+      );
+    },
+    filename(req, file, callback) {
+      callback(null, file.originalname);
+    },
+  });
+
+  const upload = multer({
+    storage,
+  }).single('file');
+
+  upload(req, res, function (err) {
+    res.status(200).send({
+      msg: 'File is uploaded',
+      fileName: req.file.filename
+    });
+  });
+});
+
+
+adminRouter.delete('/contentList/:file', function (req, res, next) {
+  let { file } = req.params;
+  file = decodeURIComponent(file);
+
+  let path = `${process.cwd()}/public/signage_content/${file}`;
+  fs.unlink(path, (err) => {
+    if (err){
+      return res.status(500).send({
+        msg: 'Could not delete file',
+        err: err.message,
+      });
+    }else{
+      res.status(200).send({
+        msg: 'File is deleted',
+        fileName: file
+      });
+    }
   });
 });
 

@@ -1,5 +1,5 @@
 //- -*- tab-width: 2 -*-
-extends includes/layout
+extends ../includes/layout
 
 block vars
   - var ngAppDef = 'SignEditor'
@@ -7,7 +7,7 @@ block vars
 append scripts
   script.
     var sigId = "#{id}"
-  script(src="/javascripts/sign_editor.js")
+  script(src="/javascripts/signage/editor.js")
 
 append css
     style.
@@ -65,7 +65,6 @@ block content
                     button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                         span.sr-only Toggle Dropdown
                     .dropdown-menu
-                        a.dropdown-item(href='#',ng-click="addTimeTable(0)") {{"signage.editor.timetable" | translate}}
                         .dropdown-divide
                             h6.dropdown-header {{"signage.editor.score" | translate}}
                             li(ng-repeat="league in leagues")
@@ -137,7 +136,6 @@ block content
                         button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                             span.sr-only Toggle Dropdown
                         .dropdown-menu
-                            a.dropdown-item(href='#',ng-click="addTimeTable($index+1)") {{"signage.editor.timetable" | translate}}
                             .dropdown-divide
                             h6.dropdown-header {{"signage.editor.score" | translate}}
                             li(ng-repeat="league in leagues")

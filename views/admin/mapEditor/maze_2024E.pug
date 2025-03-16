@@ -176,8 +176,9 @@ block content
                                         img.tile-image(ng-src='/images/green_floor.png', ng-show="cells[c+','+r+','+z].tile.victims.floor == 'Green'")
 
             .col-1 
-                button.btn.btn-info(type='button', ng-click='openMaxScore()')
-                    i.fas.fa-calculator
+                if !pubService
+                    button.btn.btn-info(type='button', ng-click='openMaxScore()')
+                        i.fas.fa-calculator
         hr
         .row
             .col-6

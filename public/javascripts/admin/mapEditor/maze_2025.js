@@ -3,7 +3,12 @@ var app = angular.module('MazeEditor', ['ngTouch','ngAnimate', 'ui.bootstrap', '
 
 // function referenced by the drop target
 app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','$translate', function ($scope, $uibModal, $log, $http, $translate) {
-
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
     $scope.competitionId = competitionId;
     $scope.mapId = mapId;
     $translate('admin.mazeMapEditor.import').then(function (val) {
@@ -665,7 +670,7 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
         });
     }
 
-    $scope.saveMap = function (loc) {
+    $scope.saveMap = function (loc, callback = null) {
         if ($scope.startNotSet()) {
             alert("You must define a starting tile by clicking a tile");
             return;
@@ -686,41 +691,70 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
         };
         if (mapId) {
             $http.put("/api/maps/maze/" + mapId, map).then(function (response) {
-                if (!loc) alert("Updated map");
-                console.log(response.data);
-                if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'success',
+                        title: "Updated map"
+                    })
+                    if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
+                } else {
+                    callback();
+                }
             }, function (response) {
-                console.log(response);
                 console.log("Error: " + response.statusText);
-                alert(response.data.msg);
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'error',
+                        title: "Error",
+                        html: response.data.msg
+                    })
+                    if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
+                } else {
+                    callback();
+                }
             });
         } else {
             $http.post("/api/maps/maze", map).then(function (response) {
-                alert("Created map!");
-                console.log(response.data);
+                Toast.fire({
+                    type: 'success',
+                    title: "Created map"
+                })
                 if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
                 else window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + response.data.id)
-
             }, function (response) {
-                console.log(response);
                 console.log("Error: " + response.statusText);
-                alert(response.data.msg);
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'error',
+                        title: "Error",
+                        html: response.data.msg
+                    })
+                    if (loc) window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + loc)
+                } else {
+                    callback();
+                }
             });
         }
     }
 
     $scope.openMaxScore = function(){
-        let html = `
-        <div class='text-center'>
-            <i class='fas fa-calculator fa-3x'></i>
-        </div><hr>
-        <p style='font-size:50px'>----</p>
-        `;
-        Swal.fire({
-            html: html,
-            showCloseButton: true, 
-        })
-
+        $scope.saveMap(null, function () {
+            $http.get(`/api/maps/maze/${mapId}/maxScore`).then(function (response) {
+                let score = response.data.score;
+                let html = `
+                <div class='text-center'>
+                    <i class='fas fa-calculator fa-3x'></i>
+                </div><hr>
+                <p style='font-size:50px'>${score}</p>
+                `;
+                Swal.fire({
+                    html: html,
+                    showCloseButton: true, 
+                })
+            }, function (response) {
+                console.log("Error: " + response.statusText);
+            });
+        });
     }
     
     $scope.export = function(){

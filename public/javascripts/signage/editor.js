@@ -124,7 +124,7 @@ app.controller('SignEditorController', ['$scope', '$uibModal', '$log', '$http', 
                     }
                 })
                 if(url){
-                    $scope.contents[index].url = "/signage_content/" + url;
+                    $scope.contents[index].url = "/signage_content/" + encodeURIComponent(url);
                     $scope.$apply();
                 }
             });
@@ -153,7 +153,7 @@ app.controller('SignEditorController', ['$scope', '$uibModal', '$log', '$http', 
                     }
                 })
                 if(url){
-                    $scope.contents[index].url = "/signage_content/" + url;
+                    $scope.contents[index].url = "/signage_content/" + encodeURIComponent(url);
                     $scope.$apply();
                 }
             });
@@ -193,99 +193,6 @@ app.controller('SignEditorController', ['$scope', '$uibModal', '$log', '$http', 
         $scope.contents.splice(number,0,content);
         $scope.$apply();
     }
-
-    $scope.addTimeTable = async function (number){
-        let competitionSelect = {};
-        for(let c of $scope.competitions){
-            competitionSelect[c._id] = c.name;
-        }
-        const { value: competition } = await Swal.fire({
-            title: 'Select a competition',
-            confirmButtonText: 'Next &rarr;',
-            input: 'select',
-            inputOptions: competitionSelect,
-            inputPlaceholder: 'Select a competition',
-            showCancelButton: true,
-            inputValidator: (value) => {
-                return new Promise((resolve) => {
-                    if (value) {
-                        resolve()
-                    } else {
-                        resolve('You need to select a competition')
-                    }
-                })
-            }
-        })
-        if(!competition) return;
-
-        let sleagues = [];
-        $http.get("/api/teams/leagues/line/" + competition).then(function (response) {
-            sleagues = response.data
-            $http.get("/api/teams/leagues/maze/" + competition).then(async function (response) {
-                sleagues = sleagues.concat(response.data);
-                console.log(sleagues);
-                let leagueSelect = {};
-                for(let l of sleagues){
-                    leagueSelect[l.id] = l.name;
-                }
-                const { value: leagueId } = await Swal.fire({
-                    title: 'Select a league',
-                    confirmButtonText: 'Next &rarr;',
-                    input: 'select',
-                    inputOptions: leagueSelect,
-                    inputPlaceholder: 'Select a league',
-                    showCancelButton: true,
-                    inputValidator: (value) => {
-                        return new Promise((resolve) => {
-                            if (value) {
-                                resolve()
-                            } else {
-                                resolve('You need to select a league')
-                            }
-                        })
-                    }
-                })
-                if(!leagueId) return;
-                $http.get("/api/competitions/"+ competition +"/" + leagueId + "/rounds").then(async function (response) {
-                    let rounds = response.data
-                    let roundSelect = {};
-                    for(let r of rounds){
-                        roundSelect[r._id] = r.name;
-                    }
-                    const { value: round } = await Swal.fire({
-                        title: 'Select a round',
-                        input: 'select',
-                        inputOptions: roundSelect,
-                        inputPlaceholder: 'Select a round',
-                        showCancelButton: true,
-                        inputValidator: (value) => {
-                            return new Promise((resolve) => {
-                                if (value) {
-                                    resolve()
-                                } else {
-                                    resolve('You need to select a round')
-                                }
-                            })
-                        }
-                    })
-                    if(!round) return;
-                    let content = {
-                        duration : -1,
-                        type : "iframe",
-                        url : "/signage/display/" + competition+ "/timetable/" + leagueId +"/" + round,
-                        group: "0",
-                        disable: false
-                    }
-                    $scope.contents.splice(number,0,content);
-                    $scope.$apply();
-                })
-
-
-            });
-
-        })
-
-    }
     
     $scope.removeContents = function (number){
         $scope.contents.splice(number,1);
@@ -320,10 +227,6 @@ app.controller('SignEditorController', ['$scope', '$uibModal', '$log', '$http', 
             return false;
         }
         if (content.url.match(/\/signage\/display\/:competition\/score/)) {
-            content.duration = -1;
-            return false;
-        }
-        if (content.url.match(/timetable/)) {
             content.duration = -1;
             return false;
         }

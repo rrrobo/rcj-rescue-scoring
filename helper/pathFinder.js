@@ -1,31 +1,29 @@
 const logger = require('../config/logger').mainLogger;
 
 module.exports.findPath = function (map) {
-  if (map.finished) {
-    const tiles = [];
-    for (let i = 0; i < map.tiles.length; i++) {
-      const tile = map.tiles[i];
-      tile.index = [];
-      tile.next = [];
-      tile.next_dir = [];
-      tiles[`${tile.x},${tile.y},${tile.z}`] = tile;
-    }
-
-    const startTile =
-      tiles[`${map.startTile.x},${map.startTile.y},${map.startTile.z}`];
-
-    let startDir = '';
-    const startPaths = startTile.tileType.paths;
-    Object.keys(startPaths).forEach(function (dir, index) {
-      const nextTile =
-        tiles[nextCoord(startTile, rotateDir(dir, startTile.rot))];
-      if (nextTile !== undefined) {
-        startDir = rotateDir(dir, startTile.rot);
-      }
-    });
-
-    traverse(startTile, startDir, tiles, map, 0, 0, false);
+  const tiles = [];
+  for (let i = 0; i < map.tiles.length; i++) {
+    const tile = map.tiles[i];
+    tile.index = [];
+    tile.next = [];
+    tile.next_dir = [];
+    tiles[`${tile.x},${tile.y},${tile.z}`] = tile;
   }
+
+  const startTile =
+    tiles[`${map.startTile.x},${map.startTile.y},${map.startTile.z}`];
+
+  let startDir = '';
+  const startPaths = startTile.tileType.paths;
+  Object.keys(startPaths).forEach(function (dir, index) {
+    const nextTile =
+      tiles[nextCoord(startTile, rotateDir(dir, startTile.rot))];
+    if (nextTile !== undefined) {
+      startDir = rotateDir(dir, startTile.rot);
+    }
+  });
+
+  traverse(startTile, startDir, tiles, map, 0, 0, false);
 };
 
 function evacTile(tile) {
@@ -48,10 +46,10 @@ function traverse(curTile, entryDir, tiles, map, index, chpCount, restartFlag) {
   if (curTile.checkPoint) chpCount++;
   const next_Coord = nextCoord(curTile, entryDir);
   curTile.index.push(index);
+  map.indexCount = index + 1;
   const nextTile = tiles[next_Coord];
 
   if (curTile.tileType._id == '58cfd6549792e9313b1610e0') {
-    map.indexCount = index + 1;
     return;
   }
 
@@ -64,7 +62,6 @@ function traverse(curTile, entryDir, tiles, map, index, chpCount, restartFlag) {
       tiles[`${map.startTile2.x},${map.startTile2.y},${map.startTile2.z}`];
     if (!startTile2 || restartFlag) {
       map.EvacuationAreaLoPIndex = chpCount;
-      map.indexCount = index + 1;
       return;
     }
     curTile.next.push(

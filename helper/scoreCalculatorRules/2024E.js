@@ -53,15 +53,6 @@ module.exports.calculateLineScore = function (run) {
       score += 30; //From 2022(NL)
     }
 
-    for (let victim of run.nl.liveVictim) {
-      if (victim.found) score += 10
-      if (victim.identified) score += 20
-    }
-    for (let victim of run.nl.deadVictim) {
-      if (victim.found) score += 10
-      if (victim.identified) score += 10
-    }
-
     // 5 points for placing robot on first droptile (start)
     // Implicit showedUp if anything else is scored
     if (run.showedUp || score > 0) {
@@ -69,6 +60,15 @@ module.exports.calculateLineScore = function (run) {
     }
 
     final_score = score;
+
+    for (let victim of run.nl.liveVictim) {
+      if (victim.found) final_score += 10
+      if (victim.identified) final_score += 20
+    }
+    for (let victim of run.nl.deadVictim) {
+      if (victim.found) final_score += 10
+      if (victim.identified) final_score += 10
+    }
 
     const ret = {};
     ret.raw_score = score;

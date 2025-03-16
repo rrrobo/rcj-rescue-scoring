@@ -114,9 +114,9 @@ backupQueue.process('backup', function(job, done){
       }
     }
   });
-
-  // Copy Mail Attachment
+  
   if (fs.existsSync(`./mailAttachment/${competitionId}`)) {
+    // Copy Mail Attachment Folder
     fs.copy(`./mailAttachment/${competitionId}`, `${folderPathTmp}/mailAttachment`, (err) => {
       if(err){
         done(new Error(err));

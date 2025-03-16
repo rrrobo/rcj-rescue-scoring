@@ -132,7 +132,6 @@ lineMapSchema.pre('deleteMany', function (next) {
 
 lineMapSchema.pre('save', function (next) {
   let self = this;
-  
   self.populate('tiles.tileType', function (err, populatedMap) {
     if (err) {
       return next(err)
@@ -140,13 +139,10 @@ lineMapSchema.pre('save', function (next) {
       self = populatedMap;
       //logger.debug(self)
       
-      if (self.finished) {
-        try {
-          pathFinder.findPath(self)
-        } catch (err) {
-          logger.error(err);
-          self.finished = false
-        }
+      try {
+        pathFinder.findPath(self)
+      } catch (err) {
+        logger.error(err);
       }
       
       if (self.isNew || self.isModified("name")) {

@@ -331,7 +331,7 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
     }
 
 
-    $scope.saveMap = function () {
+    $scope.saveMap = function (callback = null) {
         if ($scope.startNotSet()) {
             Toast.fire({
                 type: 'error',
@@ -341,19 +341,10 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
             return;
         }
 
-        if (!$scope.finished) {
-            if (!confirm("Your map is not marked as finished, are you sure you still want to save??")) {
-                return;
-            }
-        }
-        
         var victims = {};
         victims.live = $scope.liveV;
         victims.dead = $scope.deadV;
 
-        let saveTile = [];
-
-        console.log("SAVE MAP");
         for(let i=0;i<$scope.tiles.length;i++){
             console.log($scope.tiles[i]);
         }
@@ -375,23 +366,27 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
             league: leagueId
         };
 
-        console.log(map);
-        console.log("Update map", mapId);
-        console.log("Competition ID", $scope.competitionId);
         if (mapId) {
             $http.put("/api/maps/line/" + mapId, map).then(function (response) {
-                Toast.fire({
-                    type: 'success',
-                    title: "Updated map"
-                })
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'success',
+                        title: "Updated map"
+                    })
+                } else {
+                    callback();
+                }
             }, function (response) {
-                console.log(response);
                 console.log("Error: " + response.statusText);
-                Toast.fire({
-                    type: 'error',
-                    title: "Error",
-                    html: response.data.msg
-                })
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'error',
+                        title: "Error",
+                        html: response.data.msg
+                    })
+                } else {
+                    callback();
+                }                
             });
         } else {
             $http.post("/api/maps/line", map).then(function (response) {
@@ -401,13 +396,16 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
                 })
                 window.location.replace("/admin/" + competitionId + "/" + leagueId + "/mapEditor/" + response.data.id)
             }, function (response) {
-                console.log(response);
                 console.log("Error: " + response.statusText);
-                Toast.fire({
-                    type: 'error',
-                    title: "Error",
-                    html: response.data.msg
-                })
+                if (callback == null) {
+                    Toast.fire({
+                        type: 'error',
+                        title: "Error",
+                        html: response.data.msg
+                    })
+                } else {
+                    callback();
+                }
             });
         }
     }
@@ -442,31 +440,33 @@ app.controller('LineEditorController', ['$scope', '$uibModal', '$log', '$http', 
 
 
     $scope.openMaxScore = function(){
-        let html = `
-        <div class='text-center'>
-            <i class='fas fa-calculator fa-3x'></i>
-        </div><hr>
-        <table class='custom'>
-            <thead>
-                <th>Exc. multiplier</th>
-                <th>EZ:1 & Kit:1</th>
-                <th>EZ:1 & Kit:2</th>
-                <th>EZ:2 & Kit:1</th>
-                <th>EZ:2 & Kit:2</th>
-            </thead>
-            <tbody>
-                <td>----</td>
-                <td>----</td>
-                <td>----</td>
-                <td>----</td>
-                <td>----</td>
-            </tbody>
-        </table>
-        `;
-        Swal.fire({
-            html: html,
-            showCloseButton: true, 
-        })
+        $scope.saveMap(function () {
+            $http.get(`/api/maps/line/${mapId}/maxScore`).then(function (response) {
+                let lineTraceScore = response.data.raw_score;
+                let finalScore = response.data.score;
+                let html = `
+                <div class='text-center'>
+                    <i class='fas fa-calculator fa-3x'></i>
+                </div><hr>
+                <table class='custom'>
+                    <thead>
+                        <th>Line Trace Score</th>
+                        <th>Final Score<br>(incl. Victim Score)</th>
+                    </thead>
+                    <tbody>
+                        <td>${lineTraceScore}</td>
+                        <td>${finalScore}</td>
+                    </tbody>
+                </table>
+                `;
+                Swal.fire({
+                    html: html,
+                    showCloseButton: true, 
+                })
+            }, function (response) {
+                console.log("Error: " + response.statusText);
+            });
+        });
     }
 
     // File APIに対応しているか確認
