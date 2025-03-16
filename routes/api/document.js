@@ -1714,6 +1714,151 @@ privateRouter.get('/map/:fileName',
   }
 );
 
+async function extractReviewAssignInfo(data, teamData, userId) {
+  let assignResult = {};
+  for (let league of data.documents.leagues) {
+    let teamsTmp = {};
+    let leagueName = league.league;
+    let review = league.review;
+    if (!review) continue;
+    for (let r of review) {
+      let totalScaleQuestionNum = r.questions.filter((q) => q.type == 'scale' && q.required).length;
+      let questionIds = r.questions.filter((q) => q.type == 'scale' && q.required).map((q) => q._id);
+      let assignedReviewers = r.assignedReviewers;
+      if (!assignedReviewers) continue;
+      if (assignedReviewers.length == 0) {
+        for (let td of teamData) {
+          if (teamsTmp[td._id] == undefined) {
+            teamsTmp[td._id] = {
+              _id: td._id,
+              league: td.league,
+              name: td.name,
+              code: td.teamCode,
+              assienedQuestionsNum: totalScaleQuestionNum,
+              answeredQuestionsNum: 0,
+              assignedQuestionIds: questionIds
+            }
+          } else {
+            teamsTmp[td._id].assienedQuestionsNum += totalScaleQuestionNum;
+            teamsTmp[td._id].assignedQuestionIds = teamsTmp[td._id].assignedQuestionIds.concat(questionIds);
+          }
+        }
+      } else {
+        let reviwerInfo = assignedReviewers.find((a) => a.reviewerId.equals(userId));
+        if (reviwerInfo) {
+          let teams = reviwerInfo.teamIds;
+          if (teams.length == 0) {
+            for (let td of teamData) {
+              if (teamsTmp[td._id] == undefined) {
+                teamsTmp[td._id] = {
+                  _id: td._id,
+                  league: td.league,
+                  name: td.name,
+                  code: td.teamCode,
+                  assienedQuestionsNum: totalScaleQuestionNum,
+                  answeredQuestionsNum: 0,
+                  assignedQuestionIds: questionIds
+                }
+              } else {
+                teamsTmp[td._id].assienedQuestionsNum += totalScaleQuestionNum;
+                teamsTmp[td._id].assignedQuestionIds = teamsTmp[td._id].assignedQuestionIds.concat(questionIds);
+              }
+            }
+          } else {
+            for (let t of teams) {
+              let td = teamData.find((tt) => tt._id.equals(t));
+              if (teamsTmp[t] == undefined) {
+                teamsTmp[td._id] = {
+                  _id: td._id,
+                  league: td.league,
+                  name: td.name,
+                  code: td.teamCode,
+                  assienedQuestionsNum: totalScaleQuestionNum,
+                  answeredQuestionsNum: 0,
+                  assignedQuestionIds: questionIds
+                }
+              } else {
+                teamsTmp[td._id].assienedQuestionsNum += totalScaleQuestionNum;
+                teamsTmp[td._id].assignedQuestionIds = teamsTmp[td._id].assignedQuestionIds.concat(questionIds);
+              }
+            }
+          }
+        }
+      }
+    }
+    let res = Object.values(teamsTmp);
+    let reviewResults = await documentDb.review.find({
+      competition: data._id,
+      reviewer: userId
+    }).lean().exec();
+    for (let ar of res) {
+      let teamReviewResult = reviewResults.find((rr) => rr.team.equals(ar._id));
+      if (teamReviewResult == undefined) {
+        delete(ar.assignedQuestionIds);
+        continue;
+      }
+      let answeredQuestionsNum = 0;
+      for (let aqid of ar.assignedQuestionIds) {
+        let score = teamReviewResult.comments[aqid];
+        if (score == undefined || score == '') continue;
+        answeredQuestionsNum ++;
+      }
+      ar.answeredQuestionsNum = answeredQuestionsNum;
+      delete(ar.assignedQuestionIds);
+    }
+    assignResult[leagueName] = res;
+  }
+  return assignResult;
+}
+
+privateRouter.get('/:competitionId/assigned', async function (req, res, next) {
+  const { competitionId } = req.params;
+  if (!ObjectId.isValid(competitionId)) {
+    return next();
+  }
+  
+  if (await auth.authCompetitionRole(req.user, competitionId, "INTERVIEW")) {
+    competitiondb.team
+      .find({
+        competition: competitionId
+      })
+      .select('name teamCode league')
+      .lean()
+      .exec(function (err, teamData) {
+        if (err || !teamData) {
+          logger.error(err);
+          res.status(400).send({
+            msg: 'Could not get teams',
+          });
+        } else {
+          competitiondb.competition
+            .findById(competitionId)
+            .select('name documents')
+            .lean()
+            .exec(async function (err, data) {
+              if (err || !data) {
+                logger.error(err);
+                res.status(400).send({
+                  msg: 'Could not get competition',
+                });
+              } else {
+                let assignResult = await extractReviewAssignInfo(data, teamData, req.user._id);
+                res.status(200).send({
+                  competitonName: data.name,
+                  assignedTeams: assignResult
+                });
+              }
+            });
+        }
+      });
+    
+  } else {
+    res.status(403).send({
+      msg: 'Operation not permited',
+    });
+  }
+});
+
 publicRouter.all('*', function (req, res, next) {
   next();
 });

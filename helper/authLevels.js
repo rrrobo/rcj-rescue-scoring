@@ -6,7 +6,7 @@ async function authCompetitionRole(authUser, competitionId, expectedRole) {
     userObj = await user.findById(userObj).lean().exec();
     if (userObj == undefined) return false;
   }
-  return userObj.competitions.find((c) => c.id.equals(competitionId)).role.includes(expectedRole);
+  return userObj.superDuperAdmin || (userObj.competitions.length != 0 && userObj.competitions.find((c) => c.id.equals(competitionId)).role.includes(expectedRole));
 }
 module.exports.authCompetitionRole = authCompetitionRole;
 
