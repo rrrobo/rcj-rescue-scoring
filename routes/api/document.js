@@ -420,7 +420,7 @@ publicRouter.get('/files/:teamId/:token/:fileName', function (req, res, next) {
 
   competitiondb.team
     .findById(teamId)
-    .select('document.enabled document.token league')
+    .select('teamCode name country document.enabled document.token league')
     .populate({
       path: "competition",
       select: "publicToken documents"
@@ -452,8 +452,8 @@ publicRouter.get('/files/:teamId/:token/:fileName', function (req, res, next) {
             dbTeam.competition._id,
             ACCESSLEVELS.VIEW
           )) && (dbTeam.document.token === token || dbTeam.document.public || (question.public && token === dbTeam.competition.publicToken ))) {
-          const path = `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/${sanitize(fileName)}`;
-          fs.stat(path, (err, stat) => {
+          const dataPath = `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/${sanitize(fileName)}`;
+          fs.stat(dataPath, (err, stat) => {
             // Handle file not found
             if (err !== null && err.code === 'ENOENT') {
               res.status(404).send({
@@ -463,7 +463,13 @@ publicRouter.get('/files/:teamId/:token/:fileName', function (req, res, next) {
             }
 
             // Streaming Video
-            let mimeType = mime.getType(path)
+            const mimeType = mime.getType(dataPath);
+            const parsedPath = path.parse(fileName);
+            let respFileName = `${parsedPath.name}_${dbTeam.teamCode}_${dbTeam.name}_${dbTeam.country}${parsedPath.ext}`;
+            if (!dbTeam.country) {
+              respFileName = `${parsedPath.name}_${dbTeam.teamCode}_${dbTeam.name}${parsedPath.ext}`;
+            }
+            
             if (mimeType != null && mimeType.includes('video')) {
               try {
                 const fileSize = stat.size;
@@ -476,7 +482,7 @@ publicRouter.get('/files/:teamId/:token/:fileName', function (req, res, next) {
                   const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
 
                   const chunksize = end - start + 1;
-                  const file = fs.createReadStream(path, { start, end });
+                  const file = fs.createReadStream(dataPath, { start, end });
                   file.on('error', function (err) {
                     logger.error(err.message);
                   });
@@ -494,16 +500,17 @@ publicRouter.get('/files/:teamId/:token/:fileName', function (req, res, next) {
                 const head = {
                   'Content-Length': fileSize,
                   'Content-Type': mimeType,
+                  'Content-Disposition': `attachment; filename="${encodeURIComponent(respFileName)}"`
                 };
 
                 res.writeHead(200, head);
-                fs.createReadStream(path).pipe(res);
+                fs.createReadStream(dataPath).pipe(res);
                 return;
               } catch (err) {
                 logger.error(err.message);
               }
             } else {
-              const stream = fs.createReadStream(path)
+              const stream = fs.createReadStream(dataPath)
               stream.on('error', (error) => {
                   res.statusCode = 500
                   res.end('Cloud not make stream')
@@ -511,6 +518,7 @@ publicRouter.get('/files/:teamId/:token/:fileName', function (req, res, next) {
               let head = {}
               if(mimeType != null) {
                 head['Content-Type'] = mimeType;
+                head['Content-Disposition'] = `attachment; filename="${encodeURIComponent(respFileName)}"`;
               }
               res.writeHead(200, head);
               stream.pipe(res);
