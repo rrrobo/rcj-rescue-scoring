@@ -198,6 +198,17 @@ privateRouter.get('/:id/:cont', function (req, res, next) {
     .findById(id)
     .select(req.params.cont)
     .exec(function (err, data) {
+      if (data.content != undefined) {
+        let content = [];
+        for (let d of data.content) {
+          let rep = d.repeat;
+          if (rep == undefined) {
+            rep = 1;
+          }
+          [...Array(rep)].map(() => content.push(d));
+        }
+        data.content = content;
+      }      
       if (err) {
         logger.error(err);
         res.status(400).send({

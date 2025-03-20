@@ -116,6 +116,17 @@ block content
                                     input.form-control(type='number', ng-model='content.duration')
                                     .input-group-append
                                         span.input-group-text {{"common.sec" | translate}}
+                                
+                                .input-group(style="width:100%;margin: 10px")
+                                    .input-group-prepend
+                                        span.input-group-text Repat
+                                    input.form-control(type='number', ng-model='content.repeat')
+                                    .input-group-append
+                                        span.input-group-text Only once
+                                    select.custom-select(ng-model='content.onlyOnce')
+                                        option(ng-value="false") {{"signage.editor.disable" | translate}}
+                                        option(ng-value="true") {{"signage.editor.enable" | translate}}
+                                    
                                 .input-group(style="width:100%;margin: 10px")
                                     .input-group-prepend
                                         span.input-group-text URL

@@ -232,7 +232,9 @@ const signageSchema = new Schema({
       type: {type: String, required: true},
       url: {type: String, required: true},
       group : {type: String , default: '0'},
-      disable: {type: Boolean, default: false}
+      disable: {type: Boolean, default: false},
+      onlyOnce: {type: Boolean, default: false},
+      repeat: {type: Number, default: 1}
   }],
   news : {type: [String]}
 })

@@ -84,7 +84,9 @@ app.controller('SignEditorController', ['$scope', '$uibModal', '$log', '$http', 
             type : "",
             url : "",
             group: "0",
-            disable: false
+            disable: false,
+            repeat: 1,
+            onlyOnce: false
         }
         $scope.contents.splice(number,0,content);
     }
