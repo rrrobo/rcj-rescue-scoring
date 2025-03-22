@@ -81,10 +81,6 @@ block content
                 button.btn.btn-sm.btn-info(type='button', ng-click="go('/document/public/' + team._id)", style="margin-right:5px;", ng-if="team.document.public")
                   i.fas.fa-file-alt &nbsp;
                   | {{"team_home.document" | translate}} 
-                if judge
-                  button.btn.btn-sm.btn-primary(type='button', ng-click="go('/document/review/' + team._id + '?return=/home/' + team.competition + '/teams')", style="margin-right:5px;")
-                    i.fas.fa-file-alt &nbsp;
-                    | {{"team_home.review" | translate}} 
                 if view
                   button.btn.btn-sm.btn-success(type='button', ng-click="go('/document/reviewed/' + team._id + '?return=/home/' + team.competition + '/teams')", style="margin-right:5px;")
                     i.fas.fa-file-alt &nbsp;
@@ -103,11 +99,6 @@ block content
               i.fas.fa-globe-asia &nbsp;
               span {{team.country}}
 
-            
-          if judge
-            button.btn.btn-sm.btn-outline-warning(type='button', ng-click="go('/document/inspection/' + team._id)", style="margin:0 5px 5px 0;")
-              i.fas.fa-ruler-combined &nbsp;
-              | {{"common.inspection" | translate}}
           button.btn.btn-sm.btn-outline-info(type='button', ng-click="go('/document/public/' + team._id)", style="margin:0 5px 5px 0;", ng-if="team.document.public")
             i.fas.fa-file-alt &nbsp;
             | {{"team_home.document" | translate}} 
