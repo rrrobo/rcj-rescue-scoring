@@ -155,7 +155,7 @@ publicRouter.get(
 
 privateRouter.get(
   '/:competition/documents/:leagueId/review',
-  function (req, res, next) {
+  async function (req, res, next) {
     const id = req.params.competition;
     const lid = req.params.leagueId;
 
@@ -171,7 +171,7 @@ privateRouter.get(
       return next();
     }
 
-    if (!auth.authCompetition(req.user, id, ACCESSLEVELS.VIEW)) {
+    if (!auth.authCompetition(req.user, id, ACCESSLEVELS.VIEW) && !await auth.authCompetitionRole(req.user, id, "INTERVIEW")) {
       return res.status(401).send({
         msg: 'You have no authority to access this api',
       });

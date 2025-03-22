@@ -1,0 +1,54 @@
+//- -*- tab-width: 2 -*-
+extends ../includes/layout
+
+block vars
+  - var ngAppDef = 'AssignedDocuments'
+
+append scripts
+  script.
+    var competitionId = "#{competition}"
+  script(src='/javascripts/document/assigned.js')
+
+block location
+  a.breadcrumb-item(ng-click="go('/home')") Home
+  a.breadcrumb-item(ng-click="go('/home/'+competitionId)") {{assigned.competitonName}}
+  span.breadcrumb-item.active Assigned Reviews
+
+
+
+block content
+  .row
+    .col-12
+      h1 Assigned Reviews - {{assigned.competitonName}}
+
+      hr
+
+      div(ng-repeat="leagueId in asKeys")
+        div(ng-show="assigned.assignedTeams[leagueId].length > 0")
+          h2 {{getLeagueName(leagueId)}}
+      
+          table.custom(style="margin-bottom:20px;")
+            thead
+                tr
+                  th {{"common.teamCode" | translate}}
+                  th {{"common.team" | translate}}
+                  th {{"common.region" | translate}}
+                  th Review Status
+                  th {{'common.operation' | translate}}
+            tbody
+                tr(ng-repeat='team in assigned.assignedTeams[leagueId] | orderBy:"[code, name]"')
+                  td(ng-bind='team.code')
+                  td(ng-bind='team.name')
+                  td(ng-bind='team.region')
+                  td
+                    span(ng-show="team.answeredQuestionsNum == team.assienedQuestionsNum" style="color:#2ecc71;")
+                      i.fas.fa-check-circle &nbsp;
+                      span {{team.answeredQuestionsNum}} / {{team.assienedQuestionsNum}}
+                    span(ng-show="team.answeredQuestionsNum != team.assienedQuestionsNum" style="color:#f1c40f;")
+                      i.fas.fa-exclamation-circle &nbsp;
+                      span {{team.answeredQuestionsNum}} / {{team.assienedQuestionsNum}}
+                  td
+                    button.btn.btn-warning(ng-show="team.answeredQuestionsNum != team.assienedQuestionsNum" type='button',ng-click='goReview(team._id)')
+                      | Evaluate
+                    button.btn.btn-secondary(ng-show="team.answeredQuestionsNum == team.assienedQuestionsNum" type='button',ng-click='goReview(team._id)')
+                      | Evaluate

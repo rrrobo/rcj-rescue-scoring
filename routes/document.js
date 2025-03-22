@@ -47,6 +47,25 @@ function GetleagueType(leagueId){
   return LEAGUES_JSON.find(l=>l.id == leagueId).type;
 }
 
+privateRouter.get('/assigned/:competitionId', async function (req, res, next) {
+  const { competitionId } = req.params;
+
+  if (!ObjectId.isValid(competitionId)) {
+    return next();
+  }
+  
+  if (
+    await auth.authCompetitionRole(req.user, competitionId, "INTERVIEW")
+  ) {
+    res.render('document/assigned', {
+      competition: competitionId,
+      user: req.user,
+    });
+  } else {
+    res.render('access_denied', { user: req.user });
+  }
+});
+
 privateRouter.get('/review/:teamId', function (req, res, next) {
   const { teamId } = req.params;
 

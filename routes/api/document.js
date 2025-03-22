@@ -1742,6 +1742,7 @@ async function extractReviewAssignInfo(data, teamData, userId) {
               league: td.league,
               name: td.name,
               code: td.teamCode,
+              region: td.country,
               assienedQuestionsNum: totalScaleQuestionNum,
               answeredQuestionsNum: 0,
               assignedQuestionIds: questionIds
@@ -1763,6 +1764,7 @@ async function extractReviewAssignInfo(data, teamData, userId) {
                   league: td.league,
                   name: td.name,
                   code: td.teamCode,
+                  region: td.country,
                   assienedQuestionsNum: totalScaleQuestionNum,
                   answeredQuestionsNum: 0,
                   assignedQuestionIds: questionIds
@@ -1781,6 +1783,7 @@ async function extractReviewAssignInfo(data, teamData, userId) {
                   league: td.league,
                   name: td.name,
                   code: td.teamCode,
+                  region: td.country,
                   assienedQuestionsNum: totalScaleQuestionNum,
                   answeredQuestionsNum: 0,
                   assignedQuestionIds: questionIds
@@ -1830,7 +1833,7 @@ privateRouter.get('/:competitionId/assigned', async function (req, res, next) {
       .find({
         competition: competitionId
       })
-      .select('name teamCode league')
+      .select('name teamCode league country')
       .lean()
       .exec(function (err, teamData) {
         if (err || !teamData) {

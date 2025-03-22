@@ -79,7 +79,6 @@ superRouter.post('/', function (req, res) {
         }
         dbUser.admin = newUser.admin;
         dbUser.superDuperAdmin = newUser.superDuperAdmin;
-        dbUser.competitions = newUser.competitions;
 
         // logger.debug(dbUser)
 
