@@ -27,6 +27,7 @@ const dateformat = require('dateformat');
 let read = require('fs-readdir-recursive');
 const logger = require('../../config/logger').mainLogger;
 const documentDb = require('../../models/document');
+const userdb = require('../../models/user');
 const escape = require('escape-html');
 const sanitize = require("sanitize-filename");
 read = gracefulFs.gracefulify(read);
@@ -1726,8 +1727,9 @@ async function extractReviewAssignInfo(data, teamData, userId) {
   let assignResult = {};
   for (let league of data.documents.leagues) {
     let teamsTmp = {};
-    let leagueName = league.league;
+    let leagueId = league.league;
     let review = league.review;
+    let teamDataLeague = teamData.filter((t) => t.league == leagueId);
     if (!review) continue;
     for (let r of review) {
       let totalScaleQuestionNum = r.questions.filter((q) => q.type == 'scale' && q.required).length;
@@ -1735,7 +1737,7 @@ async function extractReviewAssignInfo(data, teamData, userId) {
       let assignedReviewers = r.assignedReviewers;
       if (!assignedReviewers) continue;
       if (assignedReviewers.length == 0) {
-        for (let td of teamData) {
+        for (let td of teamDataLeague) {
           if (teamsTmp[td._id] == undefined) {
             teamsTmp[td._id] = {
               _id: td._id,
@@ -1757,7 +1759,7 @@ async function extractReviewAssignInfo(data, teamData, userId) {
         if (reviwerInfo) {
           let teams = reviwerInfo.teamIds;
           if (teams.length == 0) {
-            for (let td of teamData) {
+            for (let td of teamDataLeague) {
               if (teamsTmp[td._id] == undefined) {
                 teamsTmp[td._id] = {
                   _id: td._id,
@@ -1776,7 +1778,7 @@ async function extractReviewAssignInfo(data, teamData, userId) {
             }
           } else {
             for (let t of teams) {
-              let td = teamData.find((tt) => tt._id.equals(t));
+              let td = teamDataLeague.find((tt) => tt._id.equals(t));
               if (teamsTmp[t] == undefined) {
                 teamsTmp[td._id] = {
                   _id: td._id,
@@ -1797,6 +1799,7 @@ async function extractReviewAssignInfo(data, teamData, userId) {
         }
       }
     }
+    
     let res = Object.values(teamsTmp);
     let reviewResults = await documentDb.review.find({
       competition: data._id,
@@ -1817,7 +1820,7 @@ async function extractReviewAssignInfo(data, teamData, userId) {
       ar.answeredQuestionsNum = answeredQuestionsNum;
       delete(ar.assignedQuestionIds);
     }
-    assignResult[leagueName] = res;
+    assignResult[leagueId] = res;
   }
   return assignResult;
 }
@@ -1869,6 +1872,91 @@ privateRouter.get('/:competitionId/assigned', async function (req, res, next) {
     });
   }
 });
+
+adminRouter.get('/:competitionId/reviewStatus', async function (req, res, next) {
+  const { competitionId } = req.params;
+  if (!ObjectId.isValid(competitionId)) {
+    return next();
+  }
+  
+  if (auth.authCompetition(
+    req.user,
+    competitionId,
+    ACCESSLEVELS.ADMIN
+  )) {
+    userdb.user
+      .find({})
+      .lean()
+      .exec(function (err, data) {
+        if (err) {
+          logger.error(err);
+          res.status(400).send({
+            msg: 'Could not get users',
+            err: err.message,
+          });
+        } else {
+          let userList = [];
+          for (let u of data) {
+            let comp = u.competitions.find((c) => c.id.equals(competitionId));
+            if (comp != undefined) {
+              if (comp.role.includes("INTERVIEW")) {
+                userList.push({
+                  userId: u._id,
+                  userName: u.username
+                });
+              }
+            }
+          }
+          competitiondb.team
+            .find({
+              competition: competitionId
+            })
+            .select('name teamCode league country')
+            .lean()
+            .exec(function (err, teamData) {
+              if (err || !teamData) {
+                logger.error(err);
+                res.status(400).send({
+                  msg: 'Could not get teams',
+                });
+              } else {
+                competitiondb.competition
+                  .findById(competitionId)
+                  .select('name documents')
+                  .lean()
+                  .exec(async function (err, data) {
+                    if (err || !data) {
+                      logger.error(err);
+                      res.status(400).send({
+                        msg: 'Could not get competition',
+                      });
+                    } else {
+                      let reviewStatus = [];
+                      for (let user of userList) {
+                        let assignResult = await extractReviewAssignInfo(data, teamData, user.userId);
+                        reviewStatus.push({
+                          userId: user.userId,
+                          userName: user.userName,
+                          assignedTeams: assignResult
+                        })
+                      }
+                      
+                      res.status(200).send({
+                        competitonName: data.name,
+                        reviewStatus: reviewStatus
+                      });
+                    }
+                  });
+              }
+            });
+      }});
+  } else {
+    res.status(403).send({
+      msg: 'Operation not permited',
+    });
+  }
+});
+
 
 publicRouter.all('*', function (req, res, next) {
   next();

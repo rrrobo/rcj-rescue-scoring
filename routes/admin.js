@@ -170,6 +170,18 @@ router.get('/:competitionid/documents/teams', function (req, res, next) {
   else res.render('access_denied', { user: req.user });
 });
 
+router.get('/:competitionid/documents/reviewStatus', function (req, res, next) {
+  const id = req.params.competitionid;
+
+  if (!ObjectId.isValid(id)) {
+    return next();
+  }
+
+  if (auth.authCompetition(req.user, id, ACCESSLEVELS.ADMIN))
+    res.render('admin/documents/reviewStatus', { id, user: req.user });
+  else res.render('access_denied', { user: req.user });
+});
+
 router.get('/:competitionid/documents/:lid/results', function (req, res, next) {
   const id = req.params.competitionid;
   const { lid } = req.params;

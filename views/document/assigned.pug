@@ -41,14 +41,15 @@ block content
                   td(ng-bind='team.name')
                   td(ng-bind='team.region')
                   td
-                    span(ng-show="team.answeredQuestionsNum == team.assienedQuestionsNum" style="color:#2ecc71;")
-                      i.fas.fa-check-circle &nbsp;
-                      span {{team.answeredQuestionsNum}} / {{team.assienedQuestionsNum}}
-                    span(ng-show="team.answeredQuestionsNum != team.assienedQuestionsNum" style="color:#f1c40f;")
-                      i.fas.fa-exclamation-circle &nbsp;
-                      span {{team.answeredQuestionsNum}} / {{team.assienedQuestionsNum}}
+                    h5
+                      span.badge(ng-class="getBadgeColor(team)")
+                        i.fas.fa-check-circle(ng-if="team.answeredQuestionsNum == team.assienedQuestionsNum") &nbsp;
+                        i.fas.fa-exclamation-circle(ng-if="team.answeredQuestionsNum != team.assienedQuestionsNum") &nbsp;
+                        | {{team.answeredQuestionsNum}} / {{team.assienedQuestionsNum}}
                   td
-                    button.btn.btn-warning(ng-show="team.answeredQuestionsNum != team.assienedQuestionsNum" type='button',ng-click='goReview(team._id)')
+                    button.btn.btn-primary(ng-show="team.answeredQuestionsNum != team.assienedQuestionsNum" type='button',ng-click='goReview(team._id)')
+                      i.fas.fa-arrow-circle-right &nbsp;
                       | Evaluate
                     button.btn.btn-secondary(ng-show="team.answeredQuestionsNum == team.assienedQuestionsNum" type='button',ng-click='goReview(team._id)')
+                      i.fas.fa-arrow-circle-right &nbsp;
                       | Evaluate
