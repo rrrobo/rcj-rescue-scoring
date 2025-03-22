@@ -12,8 +12,8 @@ append scripts
 block location
     a.breadcrumb-item(ng-click="go('/home')") Home
     a.breadcrumb-item(ng-click="go('/admin')") Admin
-    a.breadcrumb-item(ng-click="go('/admin/' + competition._id)") {{reviewStatus.competitonName}}
-    a.breadcrumb-item(ng-click="go('/admin/' + competition._id + '/documents')") Document settings
+    a.breadcrumb-item(ng-click="go('/admin/' + competitionId)") {{reviewStatus.competitonName}}
+    a.breadcrumb-item(ng-click="go('/admin/' + competitionId + '/documents')") Document settings
     span.breadcrumb-item.active ReviewStatus
 
 
