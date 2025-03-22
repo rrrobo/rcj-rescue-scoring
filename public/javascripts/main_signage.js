@@ -16,7 +16,8 @@ var dispId = 1;
 var dispType = "iframe";
 var prevType = "iframe";
 var loadType = "iframe";
-var contentList = ["dummy"];
+var contentList = [];
+var skipContentIds = [];
 
 var i = 0; // 表示中のコンテンツ番号
 var duration = 5; // コンテンツの表示時間
@@ -79,17 +80,20 @@ if (document.readyState === "complete" ||
 function loadContent(data) {
     let tmp = data.content;
     let output = [];
-    console.log(tmp);
     for(let tm of tmp){
         if(!tm.disable){
             if(group == 0 || tm.group == 0 || tm.group == group) {
-                if(competition) tm.url = tm.url.replace(':competition',competition);
-                output.push(tm);
+                if (!tm.onlyOnce || !skipContentIds.includes(tm._id)) {
+                    if (tm.onlyOnce) {
+                        skipContentIds.push(tm._id);
+                    }
+                    if(competition) tm.url = tm.url.replace(':competition',competition);
+                    output.push(tm);
+                }
             }
         }
     }
-    contentList = output;
-    console.log(contentList);
+    contentList = contentList.concat(output);
 }
 var passedsec = 0; // 経過時間
 function iframeEnd(){
@@ -105,15 +109,16 @@ function onReady() {
     var state = 0; // 0: load 1: change content 2: go to state0
     
     var timestamp; // JSON取得時のキャッシュを防ぐためにURLにtimestampを含ませる
+    let currentContent;
     setInterval(function () {
             passedsec++;
             //console.log(passedsec + "       Status: " + state);
             if (state == 0) {
                 console.log("load");
-                loadType = contentList[i]["type"];
-                $(frame[loadType][1 - dispId]).attr('src', contentList[i]["url"]);
+                currentContent = contentList.shift();
+                $(frame[currentContent["type"]][1 - dispId]).attr('src', currentContent["url"]);
                 state = 1;
-                if (i + 1 == contentList.length) {
+                if (contentList.length == 1) {
                     timestamp = (contentJsonUrl.indexOf("?") == -1 ? "?" : "&") + "timestamp=" + (new Date()).getTime();
                     $.getJSON(contentJsonUrl + timestamp, null, loadContent);
                 }
@@ -123,7 +128,7 @@ function onReady() {
                     passedsec = 0;
                     console.log("change");
                     dispId = 1 - dispId;
-                    dispType = loadType;
+                    dispType = currentContent["type"];
                     $(frame[dispType][dispId]).css({
                         "width": "",
                         "height": ""
@@ -152,8 +157,6 @@ function onReady() {
                     }
                     
                     prevType = dispType;
-                    if (i + 1 == contentList.length) i = 0;
-                    else i++;
                 }
             } else if (state == 2) {
                 if (passedsec >= 1) {
@@ -167,7 +170,6 @@ function onReady() {
         newsList = data.news;
         if(newsList.length == 0) newsHide = true;
         else newsHide = false;
-        console.log(newsHide);
     }
     var newsList = Array();
     var newsOrder = 0;
