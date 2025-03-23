@@ -752,6 +752,7 @@
             "cp" : "Check point",
             "black" : "Black tile",
             "blue": "Blue tile",
+            "red": "Red tile",
             "down": "Bottom horizontal tile at ramp",
             "up": "Top horizontal tile at ramp",
             "top": "@:admin.lineMapEditor.top",

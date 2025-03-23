@@ -11,7 +11,7 @@ append scripts
     var pubService = "#{pubService}"
     var leagueId = "#{leagueId}"
 
-  script(src="/javascripts/admin/mapEditor/line_2025E.js")
+  script(src="/javascripts/admin/mapEditor/line_2025.js")
 
   script(src="/javascripts/lvl-uuid.js")
   script(src="/javascripts/pathFinder.js")
@@ -136,7 +136,7 @@ block content
                         if !pubService
                             button.btn.btn-info(type='button', ng-click='openMaxScore()')
                                 i.fas.fa-calculator
-                            
+                        
                 .row(ng-repeat='r in range(length)')
                     .slot(ng-repeat='c in range(width)')
                         tile(tile="tiles[c+','+r+','+z]", x='{{c}}', y='{{r}}', z='{{z}}', x-lvl-draggable='true', x-lvl-drop-target='true', ng-right-click='open(c,r)', ng-click='$parent.rotateTile(c,r)')
