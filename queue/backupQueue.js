@@ -350,7 +350,7 @@ backupQueue.process('restore', function(job, done){
         }
       );
 
-      function restore(fileName, Model){
+      async function restore(fileName, Model){
         let path = `${base_tmp_path}uploads/${folder}/${fileName}.json`
         if (fs.existsSync(path)) {
           const json = JSON.parse(
@@ -359,13 +359,27 @@ backupQueue.process('restore', function(job, done){
               'utf8'
             )
           );
-          const bulkOps = json.map(item => ({
-            updateOne: {
-                filter: {_id: item._id},
-                update: item,
-                upsert: true
+          const bulkOps = await json.reduce(async (accumulator, currentValue) => {
+            accumulator = await accumulator;
+            if (fileName == "users") {
+              let exist = await userdb.user.findOne({username: currentValue.username}).exec();
+              if (exist && !exist._id.equals(currentValue._id)) {
+                console.log(`Skip import for user: ${currentValue.username}`);
+                return accumulator;
+              }
             }
-          }));
+            accumulator.push(
+              {
+                updateOne: {
+                    filter: {_id: currentValue._id},
+                    update: currentValue,
+                    upsert: true
+                }
+              }
+            );
+            return accumulator;
+          }, []);
+
           Model.bulkWrite(bulkOps,
             function (err) {
               if (err) {

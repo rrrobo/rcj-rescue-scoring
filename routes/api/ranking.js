@@ -203,7 +203,7 @@ publicRouter.get('/:competitionId/:leagueId', async function (req, res, next) {
       ranking.map(r => r.finalScore = 0.8* r.gameSum.normalizedScoreMean + 0.2 * r.document.score);
       break;
     case competitiondb.GAMES_DOCUMENT_CHALLENGE:
-      ranking.map(r => r.finalScore = 0.7* r.gameSum.normalizedScoreMean + 0.2 * r.document.score + 0.1 * r.technicalChallenge);
+      ranking.map(r => r.finalScore = 0.6* r.gameSum.normalizedScoreMean + 0.2 * r.document.score + 0.2 * r.technicalChallenge);
       break;
   }
 
@@ -398,7 +398,7 @@ publicRouter.get('/:competitionId/:leagueId', async function (req, res, next) {
       ranking.map(r => r.finalScore = 0.8* r.gameSum.normalizedScoreMean + 0.2 * r.document.score);
       break;
     case competitiondb.GAMES_DOCUMENT_CHALLENGE:
-      ranking.map(r => r.finalScore = 0.7* r.gameSum.normalizedScoreMean + 0.2 * r.document.score + 0.1 * r.technicalChallenge);
+      ranking.map(r => r.finalScore = 0.6* r.gameSum.normalizedScoreMean + 0.2 * r.document.score + 0.2 * r.technicalChallenge);
       break;
   }
 
@@ -566,7 +566,7 @@ publicRouter.get('/:competitionId/:leagueId', async function (req, res, next) {
       ranking.map(r => r.finalScore = 0.8* r.gameSum.normalizedScoreMean + 0.2 * r.document.score);
       break;
     case competitiondb.GAMES_DOCUMENT_CHALLENGE:
-      ranking.map(r => r.finalScore = 0.7* r.gameSum.normalizedScoreMean + 0.2 * r.document.score + 0.1 * r.technicalChallenge);
+      ranking.map(r => r.finalScore = 0.6* r.gameSum.normalizedScoreMean + 0.2 * r.document.score + 0.2 * r.technicalChallenge);
       break;
   }
 

@@ -92,8 +92,8 @@ block content
               select.custom-select(ng-model='league.mode')
                 option(value="SUM_OF_BEST_N_GAMES") SUM OF BEST N GAMES
                 option(value="MEAN_OF_NORMALIZED_BEST_N_GAMES") MEAN OF NORMALIZED BEST N GAMES
-                option(value="MEAN_OF_NORMALIZED_BEST_N_GAMES_NORMALIZED_DOCUMENT") 0.8 * MEAN OF NORMALIZED BEST N GAMES + 0.2 * NORMALIZED DOCUMENT SCORE
-                option(value="GAMES_DOCUMENT_CHALLENGE") 0.7 * MEAN OF NORMALIZED BEST N GAMES + 0.2 * NORMALIZED DOCUMENT SCORE + 0.1 * NORMALIZED TECHNICAL CHALLENGE
+                option(value="MEAN_OF_NORMALIZED_BEST_N_GAMES_NORMALIZED_DOCUMENT") 0.8 GAMES + 0.2 DOCUMENT
+                option(value="GAMES_DOCUMENT_CHALLENGE") 0.6 GAMES + 0.2 DOCUMENT + 0.2 TECHNICAL CHALLENGE
               .input-group-prepend
                 span.input-group-text {{"admin.settings.num" | translate}}
               input.form-control(type='number', ng-model='league.num' style="max-width:100px;")
