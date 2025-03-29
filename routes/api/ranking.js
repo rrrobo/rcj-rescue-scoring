@@ -40,7 +40,7 @@ publicRouter.get('/:competitionId/:leagueId', async function (req, res, next) {
   if (!rankingSettings.disclose && !auth.authCompetition(
     req.user,
     competition,
-    ACCESSLEVELS.ADMIN
+    ACCESSLEVELS.VIEW
   )) {
     return res.status(401).send();
   }
@@ -235,7 +235,7 @@ publicRouter.get('/:competitionId/:leagueId', async function (req, res, next) {
   if (!rankingSettings.disclose && !auth.authCompetition(
     req.user,
     competition,
-    ACCESSLEVELS.ADMIN
+    ACCESSLEVELS.VIEW
   )) {
     return res.status(401).send();
   }
@@ -430,7 +430,7 @@ publicRouter.get('/:competitionId/:leagueId', async function (req, res, next) {
   if (!rankingSettings.disclose && !auth.authCompetition(
     req.user,
     competition,
-    ACCESSLEVELS.ADMIN
+    ACCESSLEVELS.VIEW
   )) {
     return res.status(401).send();
   }
