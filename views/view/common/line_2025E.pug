@@ -45,7 +45,7 @@
       .col-6(style="margin-bottom: 5px;")
         .alert.alert-primary(style='padding: 0;margin: 0;text-align:center;', role='alert')
           h3(style='text-align:center;margin: 0;')
-            | {{'common.stotal' | translate}} : {{raw_score - checkTotal() - exitBonusPoints() - nlPoints()}} {{'common.point' |translate}}
+            | {{'common.stotal' | translate}} : {{raw_score - checkTotal() - exitBonusPoints()}} {{'common.point' |translate}}
       .col-3(style="margin-bottom: 5px;")
         div(style='text-align:right;float:right;')
           .btn-group
@@ -293,7 +293,7 @@ div(ng-if="league=='LineNL'")
       .col-md-2
         p(style='height:30px;') {{'line.sign.item' | translate}}
         h1
-          | {{raw_score - checkTotal() - exitBonusPoints() - nlPoints()}} {{'common.point' | translate}}
+          | {{raw_score - checkTotal() - exitBonusPoints()}} {{'common.point' | translate}}
       .col-md-1
         p(style='height:30px;')
         h1 +
