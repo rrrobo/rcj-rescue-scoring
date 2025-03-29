@@ -22,8 +22,8 @@ html(ng-app="ddApp")
 
   body(ng-controller="ddController")
     iframe(ng-src='{{signageSrc()}}', style='width:100%; height:100%; border:none;', ng-if='showSignage')
-    .row(style='margin: 0 0 0 0;height:100%;', ng-if='num')
-      div(class='col-md-{{12/num}} col-sm-{{12/num}}', style='padding:0 0 0 0;', ng-style="{borderRight: ($index+1) % num ==0 ? '0px':'solid 5px #000' , height: 100/vet + '%'}" , ng-repeat='n in range(num*vet)')
+    .row(style='margin: 2%;height:96%;', ng-if='num')
+      div(class='col-md-{{12/num}} col-sm-{{12/num}}', style='padding:0 0 0 0;', ng-style="{borderRight: ($index+1) % num ==0 ? '0px':'solid 5px #000' , height: 96/vet + '%'}" , ng-repeat='n in range(num*vet)')
         iframe(ng-src='{{getIframeSrc(selectfield[n])}}', style='width:100%; height:100%; border:none;', ng-if='selectfield[n]')
         div(ng-show='!selectfield[n]')
             label Select field:
