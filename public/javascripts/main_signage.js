@@ -145,11 +145,11 @@ function onReady() {
                         }, false);
                         duration = 600;
                     } else {
-                        if(contentList[i]["duration"] == -1){
+                        if(currentContent["duration"] == -1){
                             duration = 600;
                         }
                         else{
-                            duration = contentList[i]["duration"];
+                            duration = currentContent["duration"];
                         }
                     }
                     if(dispType == "iframe"){
