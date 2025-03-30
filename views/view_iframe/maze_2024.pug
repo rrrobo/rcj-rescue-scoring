@@ -21,10 +21,10 @@ html(ng-app="ddApp")
                 let scaleY = (window.innerHeight - areaTopLeftY - bottomBox.outerHeight(true) - 10) / mapTable.height();
                 let scale = Math.min(scaleX, scaleY);
 
-                if (scaleX > scaleY) {
-                    $('#wrapTile').css('transform-origin', 'top center');
-                } else {
+                if (scale < 1) {
                     $('#wrapTile').css('transform-origin', 'top left');
+                } else {
+                    $('#wrapTile').css('transform-origin', 'top center');
                 }
 
                 $('#wrapTile').css('transform', `scale(${scale})`);
