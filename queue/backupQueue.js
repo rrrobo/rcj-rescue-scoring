@@ -225,7 +225,7 @@ backupQueue.process('backup', function(job, done){
   backup('lineRun', lineRunDb.lineRun);
   backup('mazeMap', mazeMapDb.mazeMap);
   backup('mazeRun', mazeRunDb.mazeRun);
-  backup('simRum', simRunDb.simRun);
+  backup('simRun', simRunDb.simRun);
   backup('mail', mailDb.mail);
   backup('reservation', reservationDb.reservation);
   backup('survey', surveyDb.survey);
