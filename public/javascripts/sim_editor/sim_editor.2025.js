@@ -2595,7 +2595,7 @@ app.controller('SimEditorController', ['$scope', '$uibModal', '$log', '$http','$
         if ($scope.selectRoom == -1) {
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: '/templates/sim_editor/sim_editor_modal.2024.html',
+                templateUrl: '/templates/sim_editor/sim_editor_modal.2025.html',
                 controller: 'ModalInstanceCtrl',
                 size: 'lg',
                 scope: $scope,
@@ -2734,7 +2734,7 @@ app.controller('SimEditorController', ['$scope', '$uibModal', '$log', '$http','$
 
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: '/templates/sim_editor/custom_room_4_modal.html',
+                templateUrl: '/templates/sim_editor/custom_room_4_modal.2025.html',
                 controller: 'CustomRoom4ModalCtrl',
                 size: 'lg',
                 scope: $scope,
