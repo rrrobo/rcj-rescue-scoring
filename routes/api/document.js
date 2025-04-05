@@ -27,6 +27,7 @@ const dateformat = require('dateformat');
 let read = require('fs-readdir-recursive');
 const logger = require('../../config/logger').mainLogger;
 const documentDb = require('../../models/document');
+const userdb = require('../../models/user');
 const escape = require('escape-html');
 const sanitize = require("sanitize-filename");
 read = gracefulFs.gracefulify(read);
@@ -705,7 +706,7 @@ privateRouter.get('/review/:teamId', function (req, res, next) {
     return next();
   }
 
-  competitiondb.team.findById(teamId).exec(function (err, dbTeam) {
+  competitiondb.team.findById(teamId).exec(async function (err, dbTeam) {
     if (err) {
       if (!err) err = { message: 'No team found' };
       res.status(400).send({
@@ -714,7 +715,7 @@ privateRouter.get('/review/:teamId', function (req, res, next) {
       });
     } else if (dbTeam) {
       if (
-        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW)
+        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
       ) {
         documentDb.review
           .find({
@@ -754,7 +755,7 @@ privateRouter.get('/review/:teamId/myComments', function (req, res, next) {
     return next();
   }
 
-  competitiondb.team.findById(teamId).exec(function (err, dbTeam) {
+  competitiondb.team.findById(teamId).exec(async function (err, dbTeam) {
     if (err) {
       if (!err) err = { message: 'No team found' };
       res.status(404).send({
@@ -763,7 +764,7 @@ privateRouter.get('/review/:teamId/myComments', function (req, res, next) {
       });
     } else if (dbTeam) {
       if (
-        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW)
+        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
       ) {
         documentDb.review
           .findOne({
@@ -916,7 +917,7 @@ privateRouter.put('/review/:teamId', function (req, res, next) {
     return next();
   }
 
-  competitiondb.team.findById(teamId).exec(function (err, dbTeam) {
+  competitiondb.team.findById(teamId).exec(async function (err, dbTeam) {
     if (err) {
       if (!err) err = { message: 'No team found' };
       res.status(400).send({
@@ -925,7 +926,7 @@ privateRouter.put('/review/:teamId', function (req, res, next) {
       });
     } else if (dbTeam) {
       if (
-        auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.JUDGE)
+        await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
       ) {
         documentDb.review
           .findOne({
@@ -1018,7 +1019,7 @@ privateRouter.post(
     competitiondb.team
       .findById(teamId)
       .select('competition')
-      .exec(function (err, dbTeam) {
+      .exec(async function (err, dbTeam) {
         if (err || dbTeam == null) {
           if (!err) err = { message: 'No team found' };
           res.status(400).send({
@@ -1026,11 +1027,7 @@ privateRouter.post(
             err: err.message,
           });
         } else if (dbTeam) {
-          const userAuth = auth.authCompetition(
-            req.user,
-            dbTeam.competition,
-            ACCESSLEVELS.JUDGE
-          );
+          const userAuth = await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
           if (userAuth) {
             fs.mkdirs(
               `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review/${req.user.username}`,
@@ -1149,7 +1146,7 @@ privateRouter.get('/review/files/:teamId', function (req, res, next) {
   competitiondb.team
     .findById(teamId)
     .select('competition')
-    .exec(function (err, dbTeam) {
+    .exec(async function (err, dbTeam) {
       if (err || dbTeam == null) {
         if (!err) err = { message: 'No team found' };
         res.status(400).send({
@@ -1158,7 +1155,7 @@ privateRouter.get('/review/files/:teamId', function (req, res, next) {
         });
       } else if (dbTeam) {
         if (
-          auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW)
+          auth.authCompetition(req.user, dbTeam.competition, ACCESSLEVELS.VIEW) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
         ) {
           const path = `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review`;
 
@@ -1190,7 +1187,7 @@ privateRouter.get(
     competitiondb.team
       .findById(teamId)
       .select('competition')
-      .exec(function (err, dbTeam) {
+      .exec(async function (err, dbTeam) {
         if (err || dbTeam == null) {
           if (!err) err = { message: 'No team found' };
           res.status(400).send({
@@ -1203,7 +1200,7 @@ privateRouter.get(
               req.user,
               dbTeam.competition,
               ACCESSLEVELS.VIEW
-            )
+            ) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
           ) {
             const path = `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review/${userName}/${sanitize(fileName)}`;
             fs.stat(path, (err, stat) => {
@@ -1293,7 +1290,7 @@ privateRouter.post(
     competitiondb.team
       .findById(teamId)
       .select('competition')
-      .exec(function (err, dbTeam) {
+      .exec(async function (err, dbTeam) {
         if (err || dbTeam == null) {
           if (!err) err = { message: 'No team found' };
           res.status(400).send({
@@ -1301,11 +1298,7 @@ privateRouter.post(
             err: err.message,
           });
         } else if (dbTeam) {
-          const userAuth = auth.authCompetition(
-            req.user,
-            dbTeam.competition,
-            ACCESSLEVELS.JUDGE
-          );
+          const userAuth =  await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
           if (userAuth) {
             fs.mkdirs(
               `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review/${req.user.username}/usercontent`,
@@ -1367,7 +1360,7 @@ privateRouter.get(
     competitiondb.team
       .findById(teamId)
       .select('competition')
-      .exec(function (err, dbTeam) {
+      .exec(async function (err, dbTeam) {
         if (err || dbTeam == null) {
           if (!err) err = { message: 'No team found' };
           res.status(400).send({
@@ -1380,7 +1373,7 @@ privateRouter.get(
               req.user,
               dbTeam.competition,
               ACCESSLEVELS.VIEW
-            )
+            ) || await auth.authCompetitionRole(req.user, dbTeam.competition, "INTERVIEW")
           ) {
             const path = `${__dirname}/../../documents/${dbTeam.competition._id}/${teamId}/review/${userName}/usercontent/${sanitize(fileName)}`;
             fs.stat(path, (err, stat) => {
@@ -1729,6 +1722,241 @@ privateRouter.get('/map/:fileName',
     );
   }
 );
+
+async function extractReviewAssignInfo(data, teamData, userId) {
+  let assignResult = {};
+  for (let league of data.documents.leagues) {
+    let teamsTmp = {};
+    let leagueId = league.league;
+    let review = league.review;
+    let teamDataLeague = teamData.filter((t) => t.league == leagueId);
+    if (!review) continue;
+    for (let r of review) {
+      let totalScaleQuestionNum = r.questions.filter((q) => q.type == 'scale' && q.required).length;
+      let questionIds = r.questions.filter((q) => q.type == 'scale' && q.required).map((q) => q._id);
+      let assignedReviewers = r.assignedReviewers;
+      if (!assignedReviewers) continue;
+      if (assignedReviewers.length == 0) {
+        for (let td of teamDataLeague) {
+          if (teamsTmp[td._id] == undefined) {
+            teamsTmp[td._id] = {
+              _id: td._id,
+              league: td.league,
+              name: td.name,
+              code: td.teamCode,
+              region: td.country,
+              assienedQuestionsNum: totalScaleQuestionNum,
+              answeredQuestionsNum: 0,
+              assignedQuestionIds: questionIds
+            }
+          } else {
+            teamsTmp[td._id].assienedQuestionsNum += totalScaleQuestionNum;
+            teamsTmp[td._id].assignedQuestionIds = teamsTmp[td._id].assignedQuestionIds.concat(questionIds);
+          }
+        }
+      } else {
+        let reviwerInfo = assignedReviewers.find((a) => a.reviewerId.equals(userId));
+        if (reviwerInfo) {
+          let teams = reviwerInfo.teamIds;
+          if (teams.length == 0) {
+            for (let td of teamDataLeague) {
+              if (teamsTmp[td._id] == undefined) {
+                teamsTmp[td._id] = {
+                  _id: td._id,
+                  league: td.league,
+                  name: td.name,
+                  code: td.teamCode,
+                  region: td.country,
+                  assienedQuestionsNum: totalScaleQuestionNum,
+                  answeredQuestionsNum: 0,
+                  assignedQuestionIds: questionIds
+                }
+              } else {
+                teamsTmp[td._id].assienedQuestionsNum += totalScaleQuestionNum;
+                teamsTmp[td._id].assignedQuestionIds = teamsTmp[td._id].assignedQuestionIds.concat(questionIds);
+              }
+            }
+          } else {
+            for (let t of teams) {
+              let td = teamDataLeague.find((tt) => tt._id.equals(t));
+              if (teamsTmp[t] == undefined) {
+                teamsTmp[td._id] = {
+                  _id: td._id,
+                  league: td.league,
+                  name: td.name,
+                  code: td.teamCode,
+                  region: td.country,
+                  assienedQuestionsNum: totalScaleQuestionNum,
+                  answeredQuestionsNum: 0,
+                  assignedQuestionIds: questionIds
+                }
+              } else {
+                teamsTmp[td._id].assienedQuestionsNum += totalScaleQuestionNum;
+                teamsTmp[td._id].assignedQuestionIds = teamsTmp[td._id].assignedQuestionIds.concat(questionIds);
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    let res = Object.values(teamsTmp);
+    let reviewResults = await documentDb.review.find({
+      competition: data._id,
+      reviewer: userId
+    }).lean().exec();
+    for (let ar of res) {
+      let teamReviewResult = reviewResults.find((rr) => rr.team.equals(ar._id));
+      if (teamReviewResult == undefined) {
+        delete(ar.assignedQuestionIds);
+        continue;
+      }
+      let answeredQuestionsNum = 0;
+      for (let aqid of ar.assignedQuestionIds) {
+        let score = teamReviewResult.comments[aqid];
+        if (score == undefined || score == '') continue;
+        answeredQuestionsNum ++;
+      }
+      ar.answeredQuestionsNum = answeredQuestionsNum;
+      delete(ar.assignedQuestionIds);
+    }
+    assignResult[leagueId] = res;
+  }
+  return assignResult;
+}
+
+privateRouter.get('/:competitionId/assigned', async function (req, res, next) {
+  const { competitionId } = req.params;
+  if (!ObjectId.isValid(competitionId)) {
+    return next();
+  }
+  
+  if (await auth.authCompetitionRole(req.user, competitionId, "INTERVIEW")) {
+    competitiondb.team
+      .find({
+        competition: competitionId
+      })
+      .select('name teamCode league country')
+      .lean()
+      .exec(function (err, teamData) {
+        if (err || !teamData) {
+          logger.error(err);
+          res.status(400).send({
+            msg: 'Could not get teams',
+          });
+        } else {
+          competitiondb.competition
+            .findById(competitionId)
+            .select('name documents')
+            .lean()
+            .exec(async function (err, data) {
+              if (err || !data) {
+                logger.error(err);
+                res.status(400).send({
+                  msg: 'Could not get competition',
+                });
+              } else {
+                let assignResult = await extractReviewAssignInfo(data, teamData, req.user._id);
+                res.status(200).send({
+                  competitonName: data.name,
+                  assignedTeams: assignResult
+                });
+              }
+            });
+        }
+      });
+    
+  } else {
+    res.status(403).send({
+      msg: 'Operation not permited',
+    });
+  }
+});
+
+adminRouter.get('/:competitionId/reviewStatus', async function (req, res, next) {
+  const { competitionId } = req.params;
+  if (!ObjectId.isValid(competitionId)) {
+    return next();
+  }
+  
+  if (auth.authCompetition(
+    req.user,
+    competitionId,
+    ACCESSLEVELS.ADMIN
+  )) {
+    userdb.user
+      .find({})
+      .lean()
+      .exec(function (err, data) {
+        if (err) {
+          logger.error(err);
+          res.status(400).send({
+            msg: 'Could not get users',
+            err: err.message,
+          });
+        } else {
+          let userList = [];
+          for (let u of data) {
+            let comp = u.competitions.find((c) => c.id.equals(competitionId));
+            if (comp != undefined) {
+              if (comp.role.includes("INTERVIEW")) {
+                userList.push({
+                  userId: u._id,
+                  userName: u.username
+                });
+              }
+            }
+          }
+          competitiondb.team
+            .find({
+              competition: competitionId
+            })
+            .select('name teamCode league country')
+            .lean()
+            .exec(function (err, teamData) {
+              if (err || !teamData) {
+                logger.error(err);
+                res.status(400).send({
+                  msg: 'Could not get teams',
+                });
+              } else {
+                competitiondb.competition
+                  .findById(competitionId)
+                  .select('name documents')
+                  .lean()
+                  .exec(async function (err, data) {
+                    if (err || !data) {
+                      logger.error(err);
+                      res.status(400).send({
+                        msg: 'Could not get competition',
+                      });
+                    } else {
+                      let reviewStatus = [];
+                      for (let user of userList) {
+                        let assignResult = await extractReviewAssignInfo(data, teamData, user.userId);
+                        reviewStatus.push({
+                          userId: user.userId,
+                          userName: user.userName,
+                          assignedTeams: assignResult
+                        })
+                      }
+                      
+                      res.status(200).send({
+                        competitonName: data.name,
+                        reviewStatus: reviewStatus
+                      });
+                    }
+                  });
+              }
+            });
+      }});
+  } else {
+    res.status(403).send({
+      msg: 'Operation not permited',
+    });
+  }
+});
+
 
 publicRouter.all('*', function (req, res, next) {
   next();

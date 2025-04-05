@@ -122,6 +122,7 @@ block content
               th
               th
               th
+              th
         tbody
             tr(ng-repeat='user in users')
               td
@@ -142,4 +143,9 @@ block content
                 button(ng-click='updateAuthority(user._id , 5)' style="width:100%;" type="button" class="btn btn-primary" ng-disabled="user.superDuperAdmin") {{"admin.authority.doLevel5" | translate}}
               td
                 button(ng-click='updateAuthority(user._id , 10)' style="width:100%;" type="button" class="btn btn-success" ng-disabled="user.superDuperAdmin || !user.admin") {{"admin.authority.doLevel10" | translate}}
+              td
+                button(ng-show='!hasRole(user, "INTERVIEW")' ng-click='grantRole(user , "INTERVIEW")' style="width:100%;" type="button" class="btn btn-outline-warning")
+                  i.far.fa-square &nbsp;INTERVIEW
+                button(ng-show='hasRole(user, "INTERVIEW")' ng-click='revokeRole(user , "INTERVIEW")' style="width:100%;" type="button" class="btn btn-warning")
+                  i.fas.fa-check-square &nbsp;INTERVIEW
       br

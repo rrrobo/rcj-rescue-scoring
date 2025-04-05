@@ -1,4 +1,14 @@
-const { ACCESSLEVELS } = require('../models/user');
+const { ACCESSLEVELS, user } = require('../models/user');
+
+async function authCompetitionRole(authUser, competitionId, expectedRole) {
+  let userObj = authUser;
+  if (typeof(userObj) == "string" || userObj.competitions == undefined) {
+    userObj = await user.findById(userObj).lean().exec();
+    if (userObj == undefined) return false;
+  }
+  return userObj.superDuperAdmin || (userObj.competitions.length != 0 && userObj.competitions.find((c) => c.id.equals(competitionId)).role.includes(expectedRole));
+}
+module.exports.authCompetitionRole = authCompetitionRole;
 
 function authCompetition(user, competitionId, level) {
   if (user == null) {

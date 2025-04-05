@@ -298,7 +298,7 @@ publicRouter.get('/:runid', async function (req, res, next) {
     'round',
     { path: 'team', select: 'name league teamCode' },
     'field',
-    { path: 'competition', select: 'name leagues preparation rule' }
+    { path: 'competition', select: 'name leagues preparation' }
   ]).exec(async function (err, dbRun) {
     if (err) {
       logger.error(err);
@@ -308,6 +308,7 @@ publicRouter.get('/:runid', async function (req, res, next) {
       });
     }
     if (dbRun) {
+      const rule = dbRun.competition.leagues.find(r => r.league == dbRun.team.league).rule;
       // Hide map and field from public
       const authResult = auth.authViewRun(
         req.user,
@@ -318,7 +319,7 @@ publicRouter.get('/:runid', async function (req, res, next) {
       if (authResult == 0) return res.status(401).send();
 
       // Init run data
-      let initDbRun = await initRunData.initLine(dbRun);
+      let initDbRun = await initRunData.initLine(dbRun, rule);
       if (initDbRun != null) {
         dbRun.tiles = initDbRun.tiles;
         dbRun.LoPs = initDbRun.LoPs;

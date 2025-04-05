@@ -19,7 +19,7 @@ publicRouter.get('/scanner/:mode', function (req, res, next) {
   res.render('scanner', { mode, user: req.user });
 });
 
-publicRouter.get('/:competitionid', function (req, res, next) {
+publicRouter.get('/:competitionid', async function (req, res, next) {
   const id = req.params.competitionid;
 
   if (!ObjectId.isValid(id)) {
@@ -30,6 +30,7 @@ publicRouter.get('/:competitionid', function (req, res, next) {
     id,
     user: req.user,
     judge: auth.authCompetition(req.user, id, ACCESSLEVELS.JUDGE),
+    interview: await auth.authCompetitionRole(req.user, id, "INTERVIEW")
   });
 });
 

@@ -91,6 +91,10 @@ table tr:nth-child(even) {
     background-color: blue;
 }
 
+.tile.red {
+    background-color: red;
+}
+
 .tile.swamp {
     background-color: #CD853F;
 }

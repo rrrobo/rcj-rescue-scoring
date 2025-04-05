@@ -38,6 +38,9 @@ block content
       
         button(ng-click="go('/home/scanner/home')" class='btn btn-outline-dark btn-lg btn-block' style="margin-top:20px;margin-bottom:20px;")
           i.fas.fa-qrcode(aria-hidden='true')  {{'home.goScanner' | translate}}
+      if interview 
+        button(ng-click="go('/document/assigned/' + competition._id )" class='btn btn-outline-success btn-lg btn-block' style="margin-top:20px;margin-bottom:20px;") 
+          i.fas.fa-file-alt(aria-hidden='true')  Assigned Reviews
       div(ng-if="secretCommand")
           button(ng-click="go('/signage/games/' + competition._id)" class='btn btn-info btn-lg btn-block' style="margin-top:20px;margin-bottom:20px;") Runs Monitor Only
           div(ng-repeat="sign in signs" style="margin-top:100px;")

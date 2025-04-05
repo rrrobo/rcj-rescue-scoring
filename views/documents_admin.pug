@@ -61,6 +61,10 @@ block content
               button(ng-click="go('/admin/' + competitionId + '/documents/' + league.id + '/review')" class='btn btn-outline-danger btn-lg btn-block' style="margin-bottom:20px;")
                 i.fas.fa-question-circle(aria-hidden='true') &nbsp; {{league.name}}
       hr
+      h3 Review Status
+      button(ng-click="go('/admin/' + competitionId + '/documents/reviewStatus')" class='btn btn-outline-secondary btn-lg btn-block' style="margin-bottom:20px;")
+        i.fas.fa-tasks(aria-hidden='true') &nbsp; Check Review Status
+      hr
       h3 {{"document.admin.result" | translate}}
       div(ng-repeat="league in leagues")
         button(ng-click="go('/admin/' + competitionId + '/documents/' + league.id + '/results')" class='btn btn-outline-success btn-lg btn-block' style="margin-bottom:20px;")

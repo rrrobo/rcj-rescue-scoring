@@ -174,6 +174,7 @@ adminRouter.get('/:map/maxScore', async function (req, res, next) {
       select: 'leagues'
     },
   ]).select("competition league").lean().exec(async function (err, data) {
+    const rule = data.competition.leagues.find((l) => l.league == data.league).rule;
     if (err) {
       logger.error(err);
       res.status(400).send({
@@ -191,7 +192,7 @@ adminRouter.get('/:map/maxScore', async function (req, res, next) {
           isNL: data.league == "LineNL",
           nl: {},
           exitBonus: true
-        }, true
+        }, rule, true
       )
       res.status(200).send(scoreCalculator.calculateScore(run));
     }

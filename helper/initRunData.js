@@ -1,7 +1,7 @@
 const logger = require('../config/logger').mainLogger;
 const { lineMap } = require('../models/lineMap');
 
-module.exports.initLine = async function (run, scored = false) {
+module.exports.initLine = async function (run, rule, scored = false) {
   if (run.started) return null;
 
   const query = lineMap.findById(run.map);
@@ -84,17 +84,19 @@ module.exports.initLine = async function (run, scored = false) {
       }
     }
 
-    // Consider continued ramp tiles as a ramp
-    let rampContinueFlag = false;
-    for (let index = run.tiles.length - 1; index >= 0; index--) {
-      if (run.tiles[index].scoredItems.some(item => item.item == "ramp")) {
-        if (rampContinueFlag) {
-          run.tiles[index].scoredItems.splice(run.tiles[index].scoredItems.findIndex(item => item.item === 'ramp'), 1);
+    if (rule == '2024' || rule == '2024E' || rule == '2025E') {
+      // Consider continued ramp tiles as a ramp
+      let rampContinueFlag = false;
+      for (let index = run.tiles.length - 1; index >= 0; index--) {
+        if (run.tiles[index].scoredItems.some(item => item.item == "ramp")) {
+          if (rampContinueFlag) {
+            run.tiles[index].scoredItems.splice(run.tiles[index].scoredItems.findIndex(item => item.item === 'ramp'), 1);
+          } else {
+            rampContinueFlag = true;
+          }
         } else {
-          rampContinueFlag = true;
+          rampContinueFlag = false;
         }
-      } else {
-        rampContinueFlag = false;
       }
     }
 

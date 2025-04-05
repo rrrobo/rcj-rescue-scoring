@@ -1,66 +1,136 @@
 // register the directive with your app module
 var app = angular.module('DocumentForm', ['ngTouch','ngAnimate', 'ui.bootstrap', 'pascalprecht.translate', 'ngCookies', 'ngQuill', 'ngSanitize', 'ngFileUpload']);
 let uploading_mes;
+
+function imageUpload(imageDataUrl, type, imageData) {
+    let quill = this.quill;
+    let maxWidth = 600;
+    Swal.fire({
+        title: uploading_mes,
+        allowOutsideClick : false,
+        onBeforeOpen: () => {
+            Swal.showLoading();
+        }
+    })
+
+    imageData
+    .minify({
+      maxWidth: 20000,
+      maxHeight: 2000,
+      quality: 1,
+    })
+    .then((miniImageData) => {
+      const file = miniImageData.toFile()
+        // generate a form data
+        const formData = new FormData()
+        formData.append('image', file)
+
+        $.ajax({
+            url: `/api/document/files/usercontent/${teamId}/${token}`,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            timeout: 5000
+        })
+        .done(async function(data) {
+            let dataUrl = data.url;
+            const index =
+                (quill.getSelection() || {}).index || quill.getLength();
+                quill.insertEmbed(index, 'image', dataUrl, 'user');
+
+            let dimentions = await getImageDimensions(dataUrl)
+            if (dimentions.w > maxWidth) {
+                quill.formatText(index, 1, 'width', `${maxWidth}px`);
+            }  
+            Swal.close()
+        })
+        .fail(function() {
+            Swal.fire({
+                type: 'error',
+                title: 'Oops...',
+                text: "Upload failed"
+            })
+        });
+    });
+}
+
+function getImageDimensions(file) {
+    return new Promise (function (resolved, rejected) {
+        var i = new Image()
+        i.onload = function(){
+            resolved({w: i.width, h: i.height})
+        };
+        i.src = file
+    })
+}
+
 app.constant('NG_QUILL_CONFIG', {
     /*
      * @NOTE: this config/output is not localizable.
      */
     modules: {
-      toolbar: [
-        ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-        ['blockquote', 'code-block'],
-  
-        [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        [{ 'script': 'sub' }, { 'script': 'super' }],     // superscript/subscript
-        [{ 'indent': '-1' }, { 'indent': '+1' }],         // outdent/indent
-        [{ 'direction': 'rtl' }],                         // text direction
-  
-        [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-  
-        [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-        [{ 'font': [] }],
-        [{ 'align': [] }],
-  
-        ['clean'],                                         // remove formatting button
-  
-        ['link', 'image', 'video']                         // link and image, video
-      ],
+      toolbar: {
+        'container': [
+            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+            ['blockquote', 'code-block'],
+    
+            [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'script': 'sub' }, { 'script': 'super' }],     // superscript/subscript
+            [{ 'indent': '-1' }, { 'indent': '+1' }],         // outdent/indent
+            [{ 'direction': 'rtl' }],                         // text direction
+    
+            [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+    
+            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+            [{ 'font': [] }],
+            [{ 'align': [] }],
+    
+            ['clean'],                                         // remove formatting button
+    
+            ['link', 'image']                         // link and image, video
+        ],
+        'handlers': {
+            'image': function (clicked) {
+                let quillThis = this;
+                if (clicked) {
+                  let fileInput = this.container.querySelector('input.ql-image[type=file]')
+                  if (fileInput == null) {
+                    fileInput = document.createElement('input')
+                    fileInput.setAttribute('type', 'file')
+                    fileInput.setAttribute(
+                      'accept',
+                      'image/png, image/gif, image/jpeg, image/bmp, image/x-icon'
+                    )
+                    fileInput.classList.add('ql-image')
+                    fileInput.addEventListener('change', function (e) {
+                      const files = e.target.files
+                      let file
+                      if (files.length > 0) {
+                        file = files[0]
+                        const type = file.type
+                        const reader = new FileReader()
+                        reader.onload = (e) => {
+                          // handle the inserted image
+                          const dataUrl = e.target.result
+                          imageUpload.call(quillThis, dataUrl, type, new QuillImageDropAndPaste.ImageData(dataUrl, type, file.name))
+                          fileInput.value = ''
+                        }
+                        reader.readAsDataURL(file)
+                      }
+                    })
+                  }
+                  fileInput.click()
+                }
+            }
+        }
+      },
       imageResize: {
       },
       imageDropAndPaste: {
-      },
-      imageUpload: {
-        url: `/api/document/files/usercontent/${teamId}/${token}`, // server url. If the url is empty then the base64 returns
-        method: 'POST', // change query method, default 'POST'
-        name: 'image', // custom form name
-        withCredentials: false, // withCredentials
-        headers: {}, // add custom headers, example { token: 'your-token'}
-        // personalize successful callback and call next function to insert new url to the editor
-        callbackOK: (serverResponse, next) => {
-            next(serverResponse.url);
-            Swal.close()
-        },
-        // personalize failed callback
-        callbackKO: serverError => {
-            console.log(serverError)
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: serverError.type
-            })
-        },
-        checkBeforeSend: (file, next) => {
-            Swal.fire({
-                title: uploading_mes,
-                allowOutsideClick : false,
-                onBeforeOpen: () => {
-                    Swal.showLoading();
-                }
-            })
-            next(file); // go back to component and send to the server
-        }
+        handler: imageUpload
       }
     },
     theme: 'snow',
@@ -117,6 +187,27 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
     // = translationId;
     });
 
+    let length_err_title;
+    $translate('document.form.lengthLimitExceed').then(function (val) {
+        length_err_title = val;
+    }, function (translationId) {
+    // = translationId;
+    });
+
+    let length_err_max_length;
+    $translate('document.form.maxLength').then(function (val) {
+        length_err_max_length = val;
+    }, function (translationId) {
+    // = translationId;
+    });
+
+    let length_err_current_length;
+    $translate('document.form.currentLength').then(function (val) {
+        length_err_current_length = val;
+    }, function (translationId) {
+    // = translationId;
+    });
+
 
     const currentLang = $translate.proposedLanguage() || $translate.use();
     const availableLangs =  $translate.getAvailableLanguageKeys();
@@ -131,6 +222,8 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
     $scope.updateTime = new Date().getTime()/1000;
 
     $scope.videoRefresh = false;
+
+    $scope.contentLength = [];
 
     $scope.rangeS =  (start, end) => [...Array((end - start) + 1)].map((_, i) => start + i);
 
@@ -151,6 +244,7 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
             $scope.blocks = response.data.blocks;
             $scope.notifications = response.data.notifications;
             $scope.languages = response.data.languages;
+            $scope.maxLength = response.data.maxLength;
 
             $http.get("/api/document/answer/"+ $scope.team._id + "/" + token).then(function (response) {
                 $scope.answers = response.data;
@@ -188,6 +282,15 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
     }
 
     $scope.save = function () {
+        // Check total length count
+        if ($scope.totalLength() > $scope.maxLength) {
+            Swal.fire({
+                type: 'error',
+                title: length_err_title,
+                html: `${length_err_max_length} ${$scope.maxLength}<br>${length_err_current_length}: ${$scope.totalLength()}`
+            })
+            return;
+        }
         $http.put("/api/document/answer/" + $scope.team._id + "/" + token, $scope.answers).then(function (response) {
             Toast.fire({
                 type: 'success',
@@ -384,4 +487,14 @@ app.controller('DocumentFormController', ['$scope', '$uibModal', '$log', '$http'
         return("/api/document/files/" + $scope.team._id + "/" + token + "/" + $scope.nameUploaded(name+'-thumbnail') + '?v=' + $scope.updateTime);
     }
 
+    $scope.contentChanged = function (editor, questionId, maxLength) {
+        $scope.contentLength[questionId] = editor.getLength();
+        if (maxLength) {
+            editor.deleteText(maxLength - 1, editor.getLength());
+        }
+    }
+    
+    $scope.totalLength = function() {
+        return Object.values($scope.contentLength).reduce((total, length) => total + length, 0);
+    };
 }]);

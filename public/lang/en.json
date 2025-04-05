@@ -752,6 +752,7 @@
             "cp" : "Check point",
             "black" : "Black tile",
             "blue": "Blue tile",
+            "red": "Red tile",
             "down": "Bottom horizontal tile at ramp",
             "up": "Top horizontal tile at ramp",
             "top": "@:admin.lineMapEditor.top",
@@ -1014,14 +1015,20 @@
             "least": "Least",
             "most": "Most",
             "teamVote": "Vote for the team",
-            "explanationOnly": "Only explanation (No question)"
+            "explanationOnly": "Only explanation (No question)",
+            "maxLength": "Maximum input length limit",
+            "linkedQuestionBlockName": "Linked question blocks"
         },
         "review_editor": {
             "title": "Document Review Form Editor",
             "export": "Export this review forms to Json file",
             "import": "Importing review forms from Json files",
             "languageWarn": "The language settings are linked to the settings of the forms for the team.",
-            "weight": "Score weight(0~1)"
+            "weight": "Score weight(0~1)",
+            "assignReviewer": "Reviewer assignment",
+            "reviewer": "Reviewer name",
+            "assignedTeams": "Assigned teams",
+            "emptyAssignment": "Since there is no assignment information, following users can evaluate: "
         },
         "form":{
             "languageError": "This form is not available in your language, so it will be displayed in an alternative language.",
@@ -1043,7 +1050,12 @@
             "uploaded": "Uploaded files",
             "cantplay": "If the video does not play properly, click here to download it.",
             "uploading": "Uploading...",
-            "mp4": "The format of the uploaded file should be mp4. If your file is in another format such as (.mov / .wmv / etc...), please convert it to mp4 format on your computer before uploading."
+            "mp4": "The format of the uploaded file should be mp4. If your file is in another format such as (.mov / .wmv / etc...), please convert it to mp4 format on your computer before uploading.",
+            "maxLength": "You can enter no more than following characters:",
+            "characters": "characters",
+            "lengthLimit": "This form has a character limit. If you enter more than the specified number of characters, you will not be able to save the form.",
+            "currentLength": "The current number of characters",
+            "lengthLimitExceed": "You have exceeded the character limit."
         },
         "review":{
             "reviewer": "Logged in reviewer: ",

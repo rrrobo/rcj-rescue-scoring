@@ -128,6 +128,38 @@ block content
                             .input-group-prepend
                                 span.input-group-text {{"document.review_editor.weight" | translate}}
                             input.form-control(type='number', step="0.01", ng-model='block.weight', ng-blur="save()")
+                        span {{"document.editor.linkedQuestionBlockName" | translate}}:
+                        ui-select(multiple='' ng-model='block.linkedQuestionBlock' theme='bootstrap' sortable='true' close-on-select='false' style='width: 100%;')
+                            ui-select-match(placeholder='Select question block...') {{$item.title}}
+                            ui-select-choices(repeat='qb._id as qb in qBlocks | filter: {title: $select.search}')
+                                div(ng-bind-html='qb.title')
+                        br
+                        span {{"document.review_editor.assignReviewer" | translate}}
+                        table(style='width: 100%;', ng-show="block.assignedReviewers.length > 0")
+                            thead(style='text-align:center;')
+                                tr 
+                                    th {{"document.review_editor.reviewer" | translate}}
+                                    th {{"document.review_editor.assignedTeams" | translate}}
+                            tbody 
+                                tr(style='background-color: #ffffcc;', ng-repeat="reviewer in block.assignedReviewers track by $index")
+                                    td(style="min-width: 150px;")
+                                        select.custom-select(ng-model='reviewer.reviewerId' ng-options='user._id as user.username for user in users' style='width: 100%;')
+                                    td 
+                                        ui-select(multiple='' ng-model='reviewer.teamIds' theme='bootstrap' sortable='true' close-on-select='false' style='width: 100%;')
+                                            ui-select-match(placeholder='Leave empty to assign for all teams') {{$item.name}}
+                                            ui-select-choices(repeat='team._id as team in teams | filter: {name: $select.search}')
+                                                div(ng-bind-html='team.name')
+                                    td 
+                                        button.btn.btn-danger(type='button', style="float:right;margin-left:5px;", ng-click="block.assignedReviewers.splice($index, 1)")
+                                            i.fas.fa-trash-alt
+                        h4(ng-show="block.assignedReviewers.length == 0") {{"document.review_editor.emptyAssignment" | translate}}
+                            span(ng-repeat="user in users") &nbsp;{{user.username}}
+                                span(ng-show="!$last") ,
+                        div(style="text-align : center;margin-top:10px;")
+                            .btn-group                                
+                                button.btn.btn-success(type='button',ng-click="block.assignedReviewers.push({'reviewerId': '', teamIds: []})")
+                                    i.fas.fa-plus
+                        hr
                         ul.nav.nav-tabs.mb-3(role='tablist')
                             i.fas.fa-globe.fa-2x &nbsp;
                             li.nav-item(ng-repeat="i18n in block.i18n track by $index", style="margin-right:5px;")

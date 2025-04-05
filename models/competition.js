@@ -140,9 +140,11 @@ const competitionSchema = new Schema({
           'scale': {
             'least': {type: Number, default: 1},
             'most': {type: Number, default: 5}
-          }
+          },
+          'maxLength': {type: Number, default: null}
         }]
       }],
+      'maxLength': {type: Number, default: null},
       'review': [{
         'i18n':[{
           'language' : {type: String, default: ''},
@@ -150,6 +152,13 @@ const competitionSchema = new Schema({
         }],
         'color': {type: String, default: '2980b9'},
         'weight': {type: Number, default: 0, min: 0, max: 1},
+        'linkedQuestionBlock': [{type: ObjectId}],
+        'assignedReviewers': [
+          {
+            'reviewerId': {type: ObjectId},
+            'teamIds': [{type: ObjectId}]
+          }
+        ],
         'questions': [{
           'i18n':[{
             'language' : {type: String, default: ''},

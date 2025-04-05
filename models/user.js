@@ -53,8 +53,15 @@ const ACCESSLEVELS = {
   VIEW      : 1,
   NONE      : 0
 }
-module.exports.ACCESSLEVELS = ACCESSLEVELS
+module.exports.ACCESSLEVELS = ACCESSLEVELS;
 
+const ROLE = [
+  "VIEW",
+  "JUDGE",
+  "INTERVIEW",
+  "ADMIN"
+]
+module.exports.ROLE = ROLE;
 
 /**
  *
@@ -87,7 +94,8 @@ var userSchema = new Schema({
        return ACCESSLEVELS.indexOf(l) != -1
        }
        }*/
-    }
+    },
+    role: { type: [String], enum: ROLE, default: [] }
   }]
   
 });
@@ -175,7 +183,6 @@ User.findOne({username: DefaultUser.username}, function (err, dbUser) {
     }
     dbUser.admin = DefaultUser.admin
     dbUser.superDuperAdmin = DefaultUser.superDuperAdmin
-    dbUser.competitions = DefaultUser.competitions
     
     //logger.debug(dbUser)
     

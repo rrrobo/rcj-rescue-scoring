@@ -902,7 +902,7 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
     $scope.open = function (x, y, z) {
         var modalInstance = $uibModal.open({
             animation: true,
-            templateUrl: '/templates/maze_editor_modal.html',
+            templateUrl: '/templates/maze_editor_modal_2025.html',
             controller: 'ModalInstanceCtrl',
             size: 'sm',
             scope: $scope,

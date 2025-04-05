@@ -31,7 +31,30 @@ app.controller("AdminSettingsController", ['$scope', '$http', function ($scope, 
     }, function (error) {
       console.log(error)
     })
+  }
 
+  $scope.hasRole = function (user, role) {
+    let userRole = user.nowRole;
+    return userRole.includes(role);
+  }
+
+  $scope.grantRole = function (user, role) {
+    let userRole = user.nowRole;
+    userRole.push(role);
+    $http.put("/api/users/" + user._id + "/" + competitionId + "/role", userRole).then(function (response) {
+      updateUserList()
+    }, function (error) {
+      console.log(error)
+    })
+  }
+
+  $scope.revokeRole = function (user, role) {
+    let userRole = user.nowRole.filter((r) => r !== role);;
+    $http.put("/api/users/" + user._id + "/" + competitionId + "/role", userRole).then(function (response) {
+      updateUserList()
+    }, function (error) {
+      console.log(error)
+    })
   }
 
   $scope.go = function (path) {
@@ -66,10 +89,14 @@ app.controller("AdminSettingsController", ['$scope', '$http', function ($scope, 
       $scope.users = response.data
 
       for (let i = 0; i < $scope.users.length; i++) {
-        $scope.users[i].nowAuth = -1
+        $scope.users[i].nowAuth = -1;
+        $scope.users[i].nowRole = [];
         for (let j = 0; j < $scope.users[i].competitions.length; j++) {
           if ($scope.competitionId == $scope.users[i].competitions[j].id) {
             $scope.users[i].nowAuth = $scope.users[i].competitions[j].accessLevel
+            if ($scope.users[i].competitions[j].role) {
+              $scope.users[i].nowRole = $scope.users[i].competitions[j].role;
+            }
             break;
           }
         }

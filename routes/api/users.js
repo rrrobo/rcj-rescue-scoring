@@ -11,6 +11,7 @@ const { ObjectId } = require('mongoose').Types;
 const logger = require('../../config/logger').mainLogger;
 const auth = require('../../helper/authLevels');
 const { ACCESSLEVELS } = require('../../models/user');
+const { rotate } = require('pdfkit');
 
 adminRouter.get('/', function (req, res) {
   userdb.user
@@ -78,7 +79,6 @@ superRouter.post('/', function (req, res) {
         }
         dbUser.admin = newUser.admin;
         dbUser.superDuperAdmin = newUser.superDuperAdmin;
-        dbUser.competitions = newUser.competitions;
 
         // logger.debug(dbUser)
 
@@ -111,6 +111,58 @@ superRouter.post('/', function (req, res) {
   );
 });
 
+adminRouter.put('/:userid/:competitionid/role', function (req, res, next) {
+  const { userid } = req.params;
+  const { competitionid } = req.params;
+  const role = Array.from(new Set(req.body));
+  
+
+  if (!auth.authCompetition(req.user, competitionid, ACCESSLEVELS.ADMIN)) {
+    res.status(401).send({
+      msg: 'You have no authority to access this api',
+    });
+    return next();
+  }
+
+  userdb.user.findById(userid).exec(function (err, dbUser) {
+    if (err) {
+      logger.error(err);
+      res.status(400).send({
+        msg: 'Could not get user',
+        err: err.message,
+      });
+    } else if (dbUser) {
+      for (j = 0; j < dbUser.competitions.length; j++) {
+        if (dbUser.competitions[j].id == competitionid) break;
+      }
+
+      if (j >= dbUser.competitions.length) {
+        const newData = {
+          id: competitionid,
+          accessLevel: 0,
+          role: role
+        };
+        dbUser.competitions.push(newData);
+      } else {
+        dbUser.competitions[j].role = role;
+      }
+
+      dbUser.save(function (err) {
+        if (err) {
+          logger.error(err);
+          return res.status(400).send({
+            err: err.message,
+            msg: 'Could not save changes',
+          });
+        }
+        return res.status(200).send({
+          msg: 'Saved changes',
+        });
+      });
+    }
+  });
+});
+
 adminRouter.put('/:userid/:competitionid/:aLevel', function (req, res, next) {
   const { userid } = req.params;
   const { competitionid } = req.params;
@@ -139,6 +191,7 @@ adminRouter.put('/:userid/:competitionid/:aLevel', function (req, res, next) {
         const newData = {
           id: competitionid,
           accessLevel: aLevel,
+          role : []
         };
         dbUser.competitions.push(newData);
       } else {
