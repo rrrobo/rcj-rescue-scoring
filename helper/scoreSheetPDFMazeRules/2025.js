@@ -85,12 +85,16 @@ function drawRun(doc, config, scoringRun) {
     { width: 75 }
   );
 
+  let drawTeamName = scoringRun.team.name;
+  if (scoringRun.team.teamCode) {
+    drawTeamName = `${scoringRun.team.teamCode} ${drawTeamName}`
+  }
   // Draw team name
   pdf.drawTextWithAlign(
     doc,
     140,
     45,
-    scoringRun.team.name,
+    drawTeamName,
     15,
     'black',
     310,
