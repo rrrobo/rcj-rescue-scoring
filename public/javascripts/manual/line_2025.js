@@ -47,8 +47,6 @@ app.controller('ddController', ['$scope', '$uibModal', '$log', '$timeout', '$htt
             "?populate=true").then(function (response) {
 
             $scope.LoPs = response.data.LoPs;
-            $scope.evacuationLevel = response.data.evacuationLevel;
-            $scope.kitLevel = response.data.kitLevel;
             $scope.exitBonus = response.data.exitBonus;
             $scope.field = response.data.field.name;
             $scope.score = response.data.score;
@@ -327,8 +325,6 @@ app.controller('ddController', ['$scope', '$uibModal', '$log', '$timeout', '$htt
           if ($scope.count_victim_list("LIVE") + $scope.count_victim_tmp("LIVE") >= $scope.maxLiveVictims) return;
         } else if(type == "DEAD") {
           if ($scope.count_victim_list("DEAD") + $scope.count_victim_tmp("DEAD") >= $scope.maxDeadVictims) return;
-        } else{ //Rescue Kit
-          if ($scope.count_victim_list("KIT") + $scope.count_victim_tmp("KKIT") >= 1) return;
         }
         $scope.victim_tmp.push(type);
       };
@@ -342,9 +338,6 @@ app.controller('ddController', ['$scope', '$uibModal', '$log', '$timeout', '$htt
         } else if(victimType == "DEAD") {
           tmp.victimType = "DEAD";
           if ($scope.count_victim_list("DEAD") >= $scope.maxDeadVictims) return;
-        } else { //Rescue Kit
-          tmp.victimType = "KIT";
-          if ($scope.count_victim_list("KIT") >= 1) return;
         }
         $scope.victim_list.push(tmp);
       };
@@ -369,8 +362,6 @@ app.controller('ddController', ['$scope', '$uibModal', '$log', '$timeout', '$htt
             live++;
           } else if (!victiml.indexOf("DEAD")) {
             dead++;
-          } else{
-            kit ++;
           }
         }
         for (let i = 0; i < live; i++) {
@@ -380,8 +371,6 @@ app.controller('ddController', ['$scope', '$uibModal', '$log', '$timeout', '$htt
           $scope.addVictim("DEAD", zoneType);
         }
     
-        if(kit) $scope.addVictim("KIT", zoneType);
-    
         $scope.victim_tmp_clear();
       };
     
@@ -390,23 +379,10 @@ app.controller('ddController', ['$scope', '$uibModal', '$log', '$timeout', '$htt
         $scope.victim_tmp = [];
       };
 
-    $scope.changeLevel = function (n) {
-        playSound(sClick);
-        $scope.evacuationLevel = n;
-    }
-
-    $scope.changeLevelK = function (n) {
-        playSound(sClick);
-        $scope.kitLevel = n;
-    };
-
-
     $scope.send = function () {
             playSound(sClick);
             var run = {}
             run.LoPs = $scope.LoPs;
-            run.evacuationLevel = $scope.evacuationLevel;
-            run.kitLevel = $scope.kitLevel;
             run.exitBonus = $scope.exitBonus;
             run.rescueOrder = $scope.victim_list;
             run.showedUp = true;
