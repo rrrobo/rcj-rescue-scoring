@@ -84,6 +84,7 @@ For detail, please check [helper files](https://github.com/rrrobo/rcj-cms-docker
 #### Dependent software
 * [Node.js](https://nodejs.org/en/)
 * [mongodb](https://www.mongodb.com)
+* [Redis](https://redis.io)
 
 ### Install bower
 `sudo npm install -g bower`

@@ -129,7 +129,8 @@ Please refer to the [English version README](https://github.com/rrrobo/rcj-rescu
 #### 主な必要なソフト
 * [Node.js](https://nodejs.org/en/)
 * [mongodb](https://www.mongodb.com)
-まず，この２つをインストールする．
+* [Redis](https://redis.io)
+まず，この3つをインストールする．
 
 ### bowerのインストール
 `sudo npm install -g bower`
