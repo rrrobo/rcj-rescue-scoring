@@ -360,53 +360,15 @@ app.controller('ddController', ['$scope', '$uibModal', '$log', '$timeout', '$htt
         });
     }
 
-    $scope.wallColor = function(x,y,z,rotate=0){
+    $scope.wallColor = function(x,y,z){
         let cell = $scope.cells[x+','+y+','+z];
         if(!cell) return {};
-        if(cell.isWall) return cell.isLinear?{'background-color': 'black'}:{'background-color': 'navy'};
-
-        if(cell.halfWall > 0){
-            let direction = 180*(cell.halfWall-1)+(y%2==1?0:90);
-
-            //Wall color
-            let color = 'navy';
-            switch (direction) {
-                case 0:
-                    if(wallCheck($scope.cells[(x-1)+','+(y+1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x+1)+','+(y+1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x)+','+(y+2)+','+z])) color = 'black';
-                    break;
-                case 90:
-                    if(wallCheck($scope.cells[(x-1)+','+(y+1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x-1)+','+(y-1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x-2)+','+(y)+','+z])) color = 'black';
-                    break;
-                case 180:
-                    if(wallCheck($scope.cells[(x-1)+','+(y-1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x+1)+','+(y-1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x)+','+(y-2)+','+z])) color = 'black';
-                    break;
-                case 270:
-                    if(wallCheck($scope.cells[(x+1)+','+(y+1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x+1)+','+(y-1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x+2)+','+(y)+','+z])) color = 'black';
-                    break;
-            }
-
-            direction += rotate;
-            if(direction>=360) direction-=360;
-
-            let gradient = String(direction) + "deg," + color + " 0%," + color + " 50%,white 50%,white 100%";
-            return {'background': 'linear-gradient(' + gradient + ')'};
-
+        if(cell.isWall) {
+            if (cell.isLinear) return {'background-color': 'black'};
+            else if (cell.ignoreWall) return {'background-color': 'green'};
+            else return {'background-color': 'navy'};
         }
-
     };
-
-    function wallCheck(cell){
-        if(!cell) return false;
-        return cell.isWall && cell.isLinear;
-    }
 
     var tick = function () {
         if ($scope.startedTime) {
