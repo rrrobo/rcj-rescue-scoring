@@ -212,7 +212,7 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
             y > $scope.length * 2 + 1 || y < 0 ||
             z > $scope.height || z < 0)
             return;
-        if ($scope.cells[pos(x,y,z)].tile && $scope.cells[pos(x,y,z)].tile.reachable) return;
+        if ($scope.cells[pos(x,y,z)] != undefined && $scope.cells[pos(x,y,z)].tile && $scope.cells[pos(x,y,z)].tile.reachable) return;
 
         setReachable(x, y, z);
 
