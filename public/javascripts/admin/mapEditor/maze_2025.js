@@ -772,7 +772,6 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
     }
     
     $scope.export = function(){
-        console.log($scope.cells)
         var map = {
             name: $scope.name,
             length: $scope.length,
