@@ -17,7 +17,7 @@
  *  should get you to the section of about quaternions.
  */
 
-DISABLE_RANDOMNESS = true
+DISABLE_RANDOMNESS = false
 
 // register the directive with your app module
 var app = angular.module('SimEditor', ['ngTouch','ngAnimate', 'ui.bootstrap', 'pascalprecht.translate', 'ngCookies']);
