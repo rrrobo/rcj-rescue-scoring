@@ -2,6 +2,7 @@ const { ACCESSLEVELS, user } = require('../models/user');
 
 async function authCompetitionRole(authUser, competitionId, expectedRole) {
   let userObj = authUser;
+  if (userObj == undefined) return false;
   if (typeof(userObj) == "string" || userObj.competitions == undefined) {
     userObj = await user.findById(userObj).lean().exec();
     if (userObj == undefined) return false;
