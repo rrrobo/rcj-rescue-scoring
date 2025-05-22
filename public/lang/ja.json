@@ -931,6 +931,7 @@
             "select4": "部屋4のタイルを選ぶ",
             "pick4": "部屋4のタイルの設定",
             "innerTile": "タイルの中の壁",
+            "victimRotation": "符号回転",
             "js":{
                 "startTileError": "スタートタイルを設定してください．"
             }

@@ -933,6 +933,7 @@
             "select4": "Select Room 4 Tiles (Anything)",
             "pick4": "Select Room 4 Configuration",
             "innerTile": "Inner Tile Walls",
+
             "js":{
                 "startTileError": "Please set the start tile."
             }
