@@ -15,7 +15,7 @@ append scripts
   script(src='/components/ngQuill/src/ng-quill.js')
   script(src='/components/quill-image-resize-module/image-resize.min.js')
   script(src='/components/quill-image-drop-and-paste/dist/quill-image-drop-and-paste.min.js')
-  script(src='/components/quill-image-upload/image-upload.min.js')
+  script(src='/components/mutation_events.min/index.js')
   script(src="/components/bootstrap-fileinput/js/fileinput.min.js")
   script(src="/components/bootstrap-fileinput/themes/fa/theme.min.js")
   script(src="/components/bootstrap-fileinput/js/locales/ja.js")
@@ -45,6 +45,9 @@ block navbar
             button.btn.btn-primary(type='button', ng-click="changeLocale()", style="padding:2px 5px 0px 3px;margin-right:10px;")
                 i.fas.fa-language(style="font-size:30px;")
             if editable
+                button.btn.btn-lg.btn-light(type='button',style="padding:1px 5px 0px 5px;font-size:22px;margin-right:10px;",ng-style="{color: maxLength < totalLength() ? '#e74c3c':'#000'}")
+                    i.fas.fa-pen &nbsp;
+                    | {{totalLength()}}
                 button.btn.btn-lg.btn-success(type='button', ng-click='save()',style="padding:1px 5px 0px 5px;font-size:22px;")
                     i.fas.fa-save &nbsp;
                     | {{"common.save" | translate}}
@@ -94,7 +97,14 @@ block content
                         strong {{"common.region" | translate}}
                     div(style="font-size:20px;")
                         p(ng-bind="team.country")
-
+            .alert.alert-warning(role='alert', ng-if="maxLength != null")
+                h4.alert-heading {{"document.editor.maxLength" | translate}}:
+                    strong(ng-bind="maxLength")
+                    span  {{"document.form.characters" | translate}}
+                p {{"document.form.lengthLimit" | translate}}
+                p {{"document.form.currentLength" | translate}}:&nbsp;
+                    | {{totalLength()}} {{"document.form.characters" | translate}}
+                strong(ng-show="maxLength < totalLength()", style="color: #e74c3c") {{"document.form.lengthLimitExceed" | translate}}
             div(ng-repeat="(blockIndex, block) in blocks track by $index")
                 .card(ng-style="{border: '3px solid #' + block.color}", style="margin-bottom:20px;")
                     h5.card-header(ng-bind="langContent(block.i18n, 'title')")
@@ -117,6 +127,7 @@ block content
                                 p(ng-if="question.type=='movie'") {{"document.form.max500" | translate}}
                                 p(ng-if="question.type=='pdf'") {{"document.form.pdfOnly" | translate}}{{"document.form.max20" | translate}}
                                 p(ng-if="question.type=='zip'") {{"document.form.zipOnly" | translate}}{{"document.form.max50" | translate}}
+                                p(ng-if="question.type=='input' && question.maxLength") {{"document.form.maxLength" | translate}} {{question.maxLength}}
                             if editable
                                 div(style="text-align:center;margin:10px 0px;")
                                     button.btn.btn-sm.btn-outline-primary(type='button', ng-click="hints(langContent(question.i18n, 'example'))", ng-if="langContent(question.i18n, 'example')")
@@ -124,7 +135,11 @@ block content
                                         | {{"document.form.hints" | translate}}
                             div(ng-if="question.type=='input'")
                                 if editable
-                                    ng-quill-editor(ng-model="answers[question._id]")
+                                    ng-quill-editor(ng-model="answers[question._id]" on-editor-created="contentChanged(editor, question._id, question.maxLength)" on-content-changed="contentChanged(editor, question._id, question.maxLength)")
+                                    div(style="text-align:center;margin:10px 0px;" ng-show="question.maxLength")
+                                        h3
+                                            span(ng-style="{color: contentLength[question._id] >= question.maxLength ? '#e74c3c':'#000'}") {{contentLength[question._id]}}
+                                            span &nbsp;/ {{question.maxLength}} {{"document.form.characters" | translate}}
                                 else
                                     div(style="margin-top:10px;padding:10px;border: 1px solid #555", ng-bind-html="answers[question._id]")
                             div(ng-if="question.type=='select'")

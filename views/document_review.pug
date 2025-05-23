@@ -16,13 +16,10 @@ append scripts
   script(src='/components/ngQuill/src/ng-quill.js')
   script(src='/components/quill-image-resize-module/image-resize.min.js')
   script(src='/components/quill-image-drop-and-paste/dist/quill-image-drop-and-paste.min.js')
-  script(src='/components/quill-image-upload/image-upload.min.js')
+  script(src='/components/mutation_events.min/index.js')
   script(src="/components/jquery-ui/jquery-ui.min.js")
   script(src='/components/lightbox2/dist/js/lightbox.min.js')
   script(src="/components/ng-file-upload/ng-file-upload.min.js")
-
-
-
 
 append css
     style.
@@ -94,26 +91,26 @@ block content
                 .alert.alert-danger(role='alert',style="margin-bottom: 20px;", ng-if="currentLang != displayLang")
                     span {{"document.form.languageError" | translate}}
                 //Team basic information
-                .card(style="margin-bottom:20px;")
-                    h5.card-header
-                        i.fas.fa-user-friends &nbsp;
-                        | {{"document.form.basicInformation" | translate}}
-                    .card-body
-                        div(style="margin-bottom:10px;")
-                            strong {{"document.form.teamName" | translate}}
-                        div(style="font-size:20px;")
-                            span(ng-bind="team.teamCode + ' '" ng-show="team.teamCode")
-                            span(ng-bind="team.name")
-                        hr
-                        div(style="margin-bottom:10px;")
-                            strong {{"common.league" | translate}}
-                        div(style="font-size:20px;")
-                            p(ng-bind="league.name")
-                        hr
-                        div(style="margin-bottom:10px;")
-                            strong {{"common.region" | translate}}
-                        div(style="font-size:20px;")
-                            p(ng-bind="team.country")
+                //- .card(style="margin-bottom:20px;")
+                //-     h5.card-header
+                //-         i.fas.fa-user-friends &nbsp;
+                //-         | {{"document.form.basicInformation" | translate}}
+                //-     .card-body
+                //-         div(style="margin-bottom:10px;")
+                //-             strong {{"document.form.teamName" | translate}}
+                //-         div(style="font-size:20px;")
+                //-             span(ng-bind="team.teamCode + ' '" ng-show="team.teamCode")
+                //-             span(ng-bind="team.name")
+                //-         hr
+                //-         div(style="margin-bottom:10px;")
+                //-             strong {{"common.league" | translate}}
+                //-         div(style="font-size:20px;")
+                //-             p(ng-bind="league.name")
+                //-         hr
+                //-         div(style="margin-bottom:10px;")
+                //-             strong {{"common.region" | translate}}
+                //-         div(style="font-size:20px;")
+                //-             p(ng-bind="team.country")
 
                 div(ng-repeat="(blockIndex, block) in blocks track by $index")
                     .card(ng-style="{border: '3px solid #' + block.color}", style="margin-bottom:20px;")

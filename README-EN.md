@@ -1,9 +1,9 @@
-# RoboCupJunior CMS 2024
+# RoboCupJunior CMS 2025
 This is a scoring system used in RoboCupJunior's rescue line & maze competition.
 
 ## Supported rules
-* 2024 rules published by International RoboCupJunior Rescue Technical Committee
-* 2024 rules published by Japanese Regional Committee for entry leagues
+* 2025 rules published by International RoboCupJunior Rescue Technical Committee
+* 2025 rules published by Japanese Regional Committee for entry leagues
 ## Demo
 The latest version is running. It is built using Docker image and working under OCI arm instance.
 
@@ -66,6 +66,9 @@ The latest version is running. It is built using Docker image and working under 
 * RoboCup Junior Japan Open 2024 Nagoya
 * RoboCup 2024 Eindhoven
 
+### 2025 rules
+* RoboCup Junior Japan Open 2025 Nagoya
+
 ## Usage
 ### Using Docker（Recomended）
 Use the  [Official docker image](https://hub.docker.com/repository/docker/ryorobo/rcj-cms) is strongly recommended.  
@@ -81,6 +84,7 @@ For detail, please check [helper files](https://github.com/rrrobo/rcj-cms-docker
 #### Dependent software
 * [Node.js](https://nodejs.org/en/)
 * [mongodb](https://www.mongodb.com)
+* [Redis](https://redis.io)
 
 ### Install bower
 `sudo npm install -g bower`

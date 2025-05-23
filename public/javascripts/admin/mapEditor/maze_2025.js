@@ -140,31 +140,34 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
         for (var index in $scope.cells) {
             $scope.cells[index].isLinear = false;
             $scope.cells[index].virtualWall = false;
+            $scope.cells[index].ignoreWall = false;
+            $scope.cells[index].changeFloorWall = undefined;
             if ($scope.cells[index].tile) {
                 $scope.cells[index].tile.reachable= false;
             }       
         }
         
-        // Set to virtual wall around the black tile and start tile
         let startTilePosition = $scope.startTile.x + "," + $scope.startTile.y + "," + $scope.startTile.z;
         for (var index in $scope.cells) {
             if($scope.cells[index].tile){
-                if($scope.cells[index].tile.black || index == startTilePosition){
-                    var x = Number(index.split(',')[0]);
-                    var y = Number(index.split(',')[1]);
-                    var z = Number(index.split(',')[2]);
-                    if($scope.cells[x + "," + (y-1) + "," + z]) $scope.cells[x + "," + (y-1) + "," + z].virtualWall = true;
-                    else $scope.cells[x + "," + (y-1) + "," + z] = {virtualWall: true};
+                let tile = $scope.cells[index].tile;
+                var x = Number(index.split(',')[0]);
+                var y = Number(index.split(',')[1]);
+                var z = Number(index.split(',')[2]);
+                // Set to virtual wall around the black tile and start tile
+                if(tile.black || index == startTilePosition){
+                    setVirtualWall(x, y-1, z);
+                    setVirtualWall(x+1, y, z);
+                    setVirtualWall(x-1, y, z);
+                    setVirtualWall(x, y+1, z);
+                }
 
-                    if($scope.cells[(x+1) + "," + y + "," + z]) $scope.cells[(x+1) + "," + y + "," + z].virtualWall = true;
-                    else $scope.cells[(x+1) + "," + y + "," + z] = {virtualWall: true};
-
-                    if($scope.cells[(x-1) + "," + y + "," + z]) $scope.cells[(x-1) + "," + y + "," + z].virtualWall = true;
-                    else $scope.cells[(x-1) + "," + y + "," + z] = {virtualWall: true};
-
-                    if($scope.cells[x + "," + (y+1) + "," + z]) $scope.cells[x + "," + (y+1) + "," + z].virtualWall = true;
-                    else $scope.cells[x + "," + (y+1) + "," + z] = {virtualWall: true};
-
+                // Remove wall from elevator
+                if (tile.changeFloorTo != undefined && tile.changeFloorTo != z) {
+                    setIgnoreWall(x, y-1, z, tile.changeFloorTo);
+                    setIgnoreWall(x+1, y, z, tile.changeFloorTo);
+                    setIgnoreWall(x-1, y, z, tile.changeFloorTo);
+                    setIgnoreWall(x, y+1, z, tile.changeFloorTo);
                 }
             }
         }
@@ -191,15 +194,6 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
         recurs($scope.startTile.x+1, $scope.startTile.y + 2, $scope.startTile.z);
         recurs($scope.startTile.x+2, $scope.startTile.y + 1, $scope.startTile.z);
 
-        for (var index in $scope.cells) {
-            if($scope.cells[index].x != null &&$scope.cells[index].tile != null && $scope.cells[index].tile.changeFloorTo != null && $scope.cells[index].tile.changeFloorTo != $scope.cells[index].z){
-                recurs($scope.cells[index].x-1, $scope.cells[index].y, $scope.cells[index].tile.changeFloorTo);
-                recurs($scope.cells[index].x+1, $scope.cells[index].y, $scope.cells[index].tile.changeFloorTo);
-                recurs($scope.cells[index].x+1, $scope.cells[index].y-1, $scope.cells[index].tile.changeFloorTo);
-                recurs($scope.cells[index].x-1, $scope.cells[index].y+1, $scope.cells[index].tile.changeFloorTo);
-            }
-        }
-
         reachable($scope.startTile.x, $scope.startTile.y, $scope.startTile.z);
     }
 
@@ -212,8 +206,8 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
             y > $scope.length * 2 + 1 || y < 0 ||
             z > $scope.height || z < 0)
             return;
-        if ($scope.cells[pos(x,y,z)].tile && $scope.cells[pos(x,y,z)].tile.reachable) return;
-
+    
+        if ($scope.cells[pos(x,y,z)] != undefined && $scope.cells[pos(x,y,z)].tile && $scope.cells[pos(x,y,z)].tile.reachable) return;
         setReachable(x, y, z);
 
         // Top
@@ -263,6 +257,28 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
         }
     }
 
+    function setIgnoreWall(x, y, z, nextLvl) {
+        if ($scope.cells[pos(x,y,z)]) {
+            $scope.cells[pos(x,y,z)].ignoreWall = !(wallExist(x,y,z) && wallExist(x,y,nextLvl));
+            $scope.cells[pos(x,y,z)].changeFloorWall = nextLvl;
+        } else {
+            $scope.cells[pos(x,y,z)] = {
+                ignoreWall: !(wallExist(x,y,z) && wallExist(x,y,nextLvl)),
+                changeFloorWall: nextLvl
+            };
+        }
+    }
+
+    function setVirtualWall(x, y, z) {
+        if ($scope.cells[pos(x,y,z)]) {
+            $scope.cells[pos(x,y,z)].virtualWall = true;
+        } else {
+            $scope.cells[pos(x,y,z)] = {
+                virtualWall: true
+            };
+        }
+    }
+
     function recurs(x, y, z) {
         if (x < 0 || y < 0 || z < 0) {
             return;
@@ -285,9 +301,8 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
         // Already visited this, returning
         if (cell.isLinear)
             return;
-        if (cell.isWall || cell.virtualWall) {
+        if ((cell.isWall || cell.virtualWall) && cell.ignoreWall != true) {
             cell.isLinear = true;
-
 
             // horizontal walls
             if (isOdd(x) && !isOdd(y)) {
@@ -322,7 +337,44 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
                 recurs(x + 1, y - 1, z);
                 recurs(x + 1, y + 1, z);
             }
-            
+        }
+
+        if (cell.isWall && cell.ignoreWall != true && cell.changeFloorWall != undefined) {
+            cell.isLinear = true;
+
+            // horizontal walls
+            if (isOdd(x) && !isOdd(y)) {
+                // Set tiles around this wall to linear
+                setTileLinear(x - 2, y - 1, cell.changeFloorWall);
+                setTileLinear(x, y - 1, cell.changeFloorWall);
+                setTileLinear(x + 2, y - 1, cell.changeFloorWall);
+                setTileLinear(x - 2, y + 1, cell.changeFloorWall);
+                setTileLinear(x, y + 1, cell.changeFloorWall);
+                setTileLinear(x + 2, y + 1, cell.changeFloorWall);
+                // Check neighbours
+                recurs(x + 2, y, cell.changeFloorWall);
+                recurs(x - 2, y, cell.changeFloorWall);
+                recurs(x - 1, y - 1, cell.changeFloorWall);
+                recurs(x - 1, y + 1, cell.changeFloorWall);
+                recurs(x + 1, y - 1, cell.changeFloorWall);
+                recurs(x + 1, y + 1, cell.changeFloorWall);
+            } // Vertical wall
+            else if (!isOdd(x) && isOdd(y)) {
+                // Set tiles around this wall to linear
+                setTileLinear(x - 1, y - 2, cell.changeFloorWall);
+                setTileLinear(x - 1, y, cell.changeFloorWall);
+                setTileLinear(x - 1, y + 2, cell.changeFloorWall);
+                setTileLinear(x + 1, y - 2, cell.changeFloorWall);
+                setTileLinear(x + 1, y, cell.changeFloorWall);
+                setTileLinear(x + 1, y + 2, cell.changeFloorWall);
+                // Check neighbours
+                recurs(x, y - 2, cell.changeFloorWall);
+                recurs(x, y + 2, cell.changeFloorWall);
+                recurs(x - 1, y - 1, cell.changeFloorWall);
+                recurs(x - 1, y + 1, cell.changeFloorWall);
+                recurs(x + 1, y - 1, cell.changeFloorWall);
+                recurs(x + 1, y + 1, cell.changeFloorWall);
+            }
         }
     }
 
@@ -587,53 +639,15 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
         delete link;
     }
 
-    $scope.wallColor = function(x,y,z,rotate=0){
+    $scope.wallColor = function(x,y,z){
         let cell = $scope.cells[x+','+y+','+z];
         if(!cell) return {};
-        if(cell.isWall) return cell.isLinear?{'background-color': 'black'}:{'background-color': 'navy'};
-
-        if(cell.halfWall > 0){
-            let direction = 180*(cell.halfWall-1)+(y%2==1?0:90);
-
-            //Wall color
-            let color = 'navy';
-            switch (direction) {
-                case 0:
-                    if(wallCheck($scope.cells[(x-1)+','+(y+1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x+1)+','+(y+1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x)+','+(y+2)+','+z])) color = 'black';
-                    break;
-                case 90:
-                    if(wallCheck($scope.cells[(x-1)+','+(y+1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x-1)+','+(y-1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x-2)+','+(y)+','+z])) color = 'black';
-                    break;
-                case 180:
-                    if(wallCheck($scope.cells[(x-1)+','+(y-1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x+1)+','+(y-1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x)+','+(y-2)+','+z])) color = 'black';
-                    break;
-                case 270:
-                    if(wallCheck($scope.cells[(x+1)+','+(y+1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x+1)+','+(y-1)+','+z])) color = 'black';
-                    if(wallCheck($scope.cells[(x+2)+','+(y)+','+z])) color = 'black';
-                    break;
-            }
-
-            direction += rotate;
-            if(direction>=360) direction-=360;
-
-            let gradient = String(direction) + "deg," + color + " 0%," + color + " 50%,white 50%,white 100%";
-            return {'background': 'linear-gradient(' + gradient + ')'};
-
+        if(cell.isWall) {
+            if (cell.isLinear) return {'background-color': 'black'};
+            else if (cell.ignoreWall) return {'background-color': 'green'};
+            else return {'background-color': 'navy'};
         }
-
     };
-
-    function wallCheck(cell){
-        if(!cell) return false;
-        return (cell.isWall || cell.virtualWall) && cell.isLinear;
-    }
 
     $scope.saveMapAs = function (name) {
         if ($scope.startNotSet()) {
@@ -758,7 +772,6 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
     }
     
     $scope.export = function(){
-        console.log($scope.cells)
         var map = {
             name: $scope.name,
             length: $scope.length,
@@ -902,7 +915,7 @@ app.controller('MazeEditorController', ['$scope', '$uibModal', '$log', '$http','
     $scope.open = function (x, y, z) {
         var modalInstance = $uibModal.open({
             animation: true,
-            templateUrl: '/templates/maze_editor_modal.html',
+            templateUrl: '/templates/maze_editor_modal_2025.html',
             controller: 'ModalInstanceCtrl',
             size: 'sm',
             scope: $scope,

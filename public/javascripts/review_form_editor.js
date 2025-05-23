@@ -130,13 +130,32 @@ app.controller('FormEditorController', ['$scope', '$uibModal', '$log', '$http', 
         for(let b of response.data.blocks){
             $scope.videos = $scope.videos.concat(b.questions.filter(q=>q.type=="movie"));
         }
-        console.log($scope.videos)
-        
+        $scope.qBlocks = response.data.blocks.map((b) => {
+            return {
+                'title': b.i18n.find((bt) => bt.language == $scope.displayLang).title,
+                '_id': b._id
+            }
+        })
     })
 
     $http.get("/api/competitions/" + competitionId +
             "/rounds").then(function (response) {
             $scope.rounds = response.data
+    })
+
+    $http.get("/api/users").then(function (response) {
+        $scope.users = response.data.filter((c) => c.competitions.some((cc) => cc.id == competitionId && cc.role.includes("INTERVIEW")))
+    })
+
+    $http.get(`/api/competitions/${competitionId}/${leagueId}/teams`).then(function (response) {
+        $scope.teams = response.data.map((t) => {
+            return {
+                name: `${t.teamCode} ${t.name}`,
+                _id: t._id
+            }
+        })
+
+        console.log($scope.teams)
     })
 
     

@@ -1,4 +1,4 @@
-# ロボカップジュニア RoboCupJunior CMS 2024
+# ロボカップジュニア RoboCupJunior CMS 2025
 ### Competition Management System
 #### (former Rescue Scoring System)
 This is a Competition Management System used in RoboCupJunior's rescue line & maze competitions in word wide.
@@ -11,8 +11,8 @@ Please refer to the [English version README](https://github.com/rrrobo/rcj-rescu
 これは，ロボカップジュニアレスキュー競技で用いられる大会管理システムです．  
 
 #### 対応ルール
-* International RoboCupJunior Rescue Committee により発行された2024ルール
-* 日本のレスキュー技術委員会により発行されたレスキュー・ライン・エントリー2024ルール
+* International RoboCupJunior Rescue Committee により発行された2025ルール
+* 日本のレスキュー技術委員会により発行されたレスキュー・ライン/メイズ・エントリー2025ルール
 --
 
 
@@ -22,14 +22,14 @@ Please refer to the [English version README](https://github.com/rrrobo/rcj-rescu
 * ユーザー管理機能を強化
 * マップの回転機能を追加
 * インタビュー機能を追加
-* 国際2024ルールに対応
+* 国際2025ルールに対応
 * ラインのタイルセットの在庫管理に対応
 * 大会データーのバックアップ/リストアに対応
 * トラブル発生時のハンドオーバーに対応
 * 紙のスコアシートの出力に対応
 * ドキュメント提出/レビューシステムを統合
 * システムからのメール配信が可能
-* レスキュー・ライン・エントリー / レスキュー・メイズ・エントリー2023ルールに対応
+* レスキュー・ライン・エントリー / レスキュー・メイズ・エントリー2025ルールに対応
 
 特別な理由がない限り，本リポジトリで提供しているバージョンを使用することをお勧めします．
 
@@ -39,6 +39,7 @@ Please refer to the [English version README](https://github.com/rrrobo/rcj-rescu
 [https://osaka.rcj.cloud](https://osaka.rcj.cloud)
 
 ## 更新情報
+* [2025/04/12] 国際2025ルール/スキュー・ライン・エントリー 2025/レスキュー・メイズ・エントリー2025に対応しました。
 * [2023/06/04] 国際2023ルールに対応しました。
 * [2022/10/09] レスキュー・メイズ・エントリー 2023ルールに対応しました
 * [2022/09/17] レスキュー・ライン・エントリー 2023ルールに対応しました
@@ -109,6 +110,9 @@ Please refer to the [English version README](https://github.com/rrrobo/rcj-rescu
 * RoboCup Junior Japan Open 2024 Nagoya
 * RoboCup 2024 Eindhoven
 
+### 2025年ルール対応版
+* RoboCup Junior Japan Open 2025 Nagoya
+
 ## 使用方法
 ### Dockerを利用（推奨）
 [公式Dockerイメージ](https://hub.docker.com/repository/docker/ryorobo/rcj-cms)を用意しています．本イメージからの利用を推奨します．  
@@ -125,7 +129,8 @@ Please refer to the [English version README](https://github.com/rrrobo/rcj-rescu
 #### 主な必要なソフト
 * [Node.js](https://nodejs.org/en/)
 * [mongodb](https://www.mongodb.com)
-まず，この２つをインストールする．
+* [Redis](https://redis.io)
+まず，この3つをインストールする．
 
 ### bowerのインストール
 `sudo npm install -g bower`

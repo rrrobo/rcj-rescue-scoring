@@ -155,7 +155,7 @@ publicRouter.get(
 
 privateRouter.get(
   '/:competition/documents/:leagueId/review',
-  function (req, res, next) {
+  async function (req, res, next) {
     const id = req.params.competition;
     const lid = req.params.leagueId;
 
@@ -171,7 +171,7 @@ privateRouter.get(
       return next();
     }
 
-    if (!auth.authCompetition(req.user, id, ACCESSLEVELS.VIEW)) {
+    if (!auth.authCompetition(req.user, id, ACCESSLEVELS.VIEW) && !await auth.authCompetitionRole(req.user, id, "INTERVIEW")) {
       return res.status(401).send({
         msg: 'You have no authority to access this api',
       });
@@ -251,6 +251,7 @@ adminRouter.put('/:competitionid', function (req, res, next) {
                 l.languages = data.documents.languages;
               if (data.documents.review != null)
                 l.review = data.documents.review;
+              l.maxLength = data.documents.maxLength;
               updated = true;
             }
           }
@@ -261,6 +262,7 @@ adminRouter.put('/:competitionid', function (req, res, next) {
               blocks: data.documents.blocks,
               languages: data.documents.languages,
               review: data.documents.review,
+              maxLength: data.documents.maxLength
             };
             dbCompetition.documents.leagues.push(tmp);
           }
@@ -573,7 +575,7 @@ privateRouter.get('/:competition/:league/teams', function (req, res, next) {
         competition: id,
         league: { $in: leagueArr },
       },
-      '_id name competition league inspected country checkin'
+      '_id name competition league inspected country checkin teamCode'
     )
     .lean()
     .exec(function (err, data) {

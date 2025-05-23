@@ -81,7 +81,6 @@ block content
                 th {{"common.teamCode" | translate}}
                 th {{"common.team" | translate}}
                 th {{"common.region" | translate}}
-                th {{"document.result.numOfJudge" | translate}}
                 th {{"document.teamAdmin.penalty" | translate}}
                 th(ng-repeat="b in teams[0].details track by $index" ng-bind="blockTitle[b.blockId]" ng-style="{backgroundColor: activeSortKey == b.blockId ? '#f1c40f':'#3498db'}")
                 th(ng-style="{backgroundColor: activeSortKey == -1 ? '#f1c40f':'#e74c3c'}")
@@ -94,14 +93,16 @@ block content
                 td(rowspan="2" )
                   a(ng-click="go('/document/reviewed/' + team._id + '?return=/admin/' + competitionId + '/documents/' + leagueId + '/results')" ng-bind='team.name' style="color: #006699;") 
                 td(rowspan="2" ng-bind='team.country')
-                td(rowspan="2" ng-bind='team.reviewerNum')
                 td(rowspan="2") {{team.document.penalty}}%
                 td(ng-repeat="b in team.details" style="border-bottom: none;padding-bottom: 0;" ng-style="{backgroundColor: activeSortKey == b.blockId ? '#f6e58d':'#dff9fb'}")
                   span {{b.score}}
-                  i.fas.fa-exclamation-triangle(style='margin-left:5px; color: #ffaa00;' ng-show="b.warning || team.reviewerNum != b.reviewerNum")
                 td(rowspan="2" ng-if="team.details.length>0" ng-style="{backgroundColor: activeSortKey == -1 ? '#f6e58d':'#ff7979'}")
                   i.fa.fa-chart-bar &nbsp; {{team.score}}
               tr(ng-repeat-end)
                 td(ng-repeat="b in team.details" style="border-top: none;padding-top: 0;" ng-style="{backgroundColor: activeSortKey == b.blockId ? '#f6e58d':'#dff9fb'}")
                   i.fa.fa-chart-bar(style="font-size: 10px;") &nbsp;{{b.normalizedScore}}
+                  br
+                  i.fas.fa-exclamation-triangle(style='margin-left:5px; color: #ffaa00;' ng-show="b.warning") &nbsp;
+                  i.fas.fa-user(style="font-size: 10px;") &nbsp;{{b.reviewerNum}}
+                    span(ng-show="b.reviewerNum != b.expectedReviewerNum") /{{b.expectedReviewerNum}}
 

@@ -42,6 +42,7 @@ const tileSchema = new Schema({
   ramp         : {type: Boolean, default: false},
   steps        : {type: Boolean, default: false},
   blue         : {type: Boolean, default: false},
+  red          : {type: Boolean, default: false},
   victims      : {
     top   : {
       type   : String,
@@ -100,6 +101,7 @@ const mazeMapSchema = new Schema({
     isTile  : {type: Boolean, default: false},
     isWall  : {type: Boolean, default: false},
     isLinear: {type: Boolean, default: false},
+    ignoreWall: {type: Boolean, default: false},
     virtualWall: {type: Boolean, default: false},
     halfWall: {type: Number},
     tile: tileSchema
@@ -165,7 +167,7 @@ mazeMapSchema.pre('save', function (next) {
         }
       }
 
-      if (cell.tile.black || cell.tile.checkpoint || cell.tile.steps || cell.tile.speedbump || cell.tile.ramp || cell.tile.blueTile) {
+      if (cell.tile.black || cell.tile.checkpoint || cell.tile.steps || cell.tile.speedbump || cell.tile.ramp || cell.tile.blueTile || cell.tile.redTile) {
         if ((cell.tile.victims.top != null &&
              cell.tile.victims.top != "None") ||
         

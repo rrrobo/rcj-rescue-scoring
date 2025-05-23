@@ -7,6 +7,7 @@ const { ObjectId } = require('mongoose').Types;
 const { lineRun } = require('../../models/lineRun');
 const { mazeRun } = require('../../models/mazeRun');
 const { simRun } = require('../../models/simRun');
+const { user } = require('../../models/user');
 const auth = require('../../helper/authLevels');
 const { ACCESSLEVELS } = require('../../models/user');
 const competitiondb = require('../../models/competition');
@@ -684,10 +685,15 @@ async function getDocumentScore(competitionId, leagueId) {
     team: { $in: teamIds }
   }).lean().exec();
 
+  // Retrieve all users who has INTERVIEW role for this competition
+  let users = await user.find().lean().exec();
+  let authorizedUsers = users.filter((u) => u.competitions.some((c) => c.id == competitionId && c.role.includes("INTERVIEW"))).map((u) => u._id);
+
   // Questions list
   let questions = {};
   let weights = {};
   let blockTitles = [];
+  let questionReviewerAssignments = {};
   for (let block of reviewQuestions) {
     if (block.weight == 0) continue;
     weights[block._id] = block.weight;
@@ -699,9 +705,11 @@ async function getDocumentScore(competitionId, leagueId) {
       if (question.type == "scale") {
         if (questions[block._id] == null) questions[block._id] = [];
         questions[block._id].push(question._id);
+        questionReviewerAssignments[question._id] = block.assignedReviewers;
       }
     }
   }
+
 
   let result = [];
   let blockScores = {};
@@ -714,7 +722,14 @@ async function getDocumentScore(competitionId, leagueId) {
       for (const [key, value] of Object.entries(review.comments)) {
         if (comments[key] == null) comments[key] = [];
         if (value == '') continue;
-        comments[key].push(value);
+
+        let assignments = questionReviewerAssignments[key];
+        if (assignments == undefined) continue;
+        if(authorizedUsers.some((au) => au.equals(review.reviewer))) {
+          if (assignments.length == 0 || assignments.some((a) => a.reviewerId.equals(review.reviewer) && (a.teamIds.some((t) => t.equals(team._id)) || a.teamIds.length == 0))) {
+            comments[key].push(value);
+          }
+        }
       }
     }
     
@@ -723,11 +738,29 @@ async function getDocumentScore(competitionId, leagueId) {
       let blockScore = 0;
       let warning = false;
       let blockReviewerNum = [];
+      let expectedReviewerNum = [];
       for (let questionId of questions[blockId]) {
         if (comments[questionId] == null) continue;
         let ratings = comments[questionId].map(str => parseInt(str));
         let numReviewer = ratings.length;
         blockReviewerNum.push(numReviewer);
+
+        let expectedReviewerCount = 0;
+        if (questionReviewerAssignments[questionId].length == 0) {
+          expectedReviewerCount += authorizedUsers.length;
+        } else {
+          for (let r of questionReviewerAssignments[questionId]) {
+            if (r.teamIds.length == 0) {
+              expectedReviewerCount++;
+              continue;
+            }
+            if (r.teamIds.some((t) => t.equals(team._id))) {
+              expectedReviewerCount++;
+              continue;
+            }
+          }
+        }
+        expectedReviewerNum.push(expectedReviewerCount);
 
         let score = 0;
         if (numReviewer >= MINIMUM_REVIEWER) {
@@ -739,17 +772,17 @@ async function getDocumentScore(competitionId, leagueId) {
         }
         blockScore += score * penalty;
       }
+      
       team.details.push({
         blockId,
         score: blockScore,
-        warning: Math.min(...blockReviewerNum) != Math.max(...blockReviewerNum),
-        reviewerNum: Math.max(...blockReviewerNum)
+        warning: (blockReviewerNum.toString() != expectedReviewerNum.toString()) ||  Math.max(...expectedReviewerNum) == 0,
+        reviewerNum: Math.min(...blockReviewerNum),
+        expectedReviewerNum: Math.max(...expectedReviewerNum)
       })
       if (blockScores[blockId] == null) blockScores[blockId] = [];
       blockScores[blockId].push(blockScore);
     }
-
-    team.reviewerNum = Math.max(...team.details.map(d => d.reviewerNum));
     result.push(team);
   }
 

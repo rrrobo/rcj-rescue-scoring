@@ -1,67 +1,137 @@
 // register the directive with your app module
 var app = angular.module('DocumentReview', ['ngTouch','ngAnimate', 'ui.bootstrap', 'pascalprecht.translate', 'ngCookies', 'ngQuill', 'ngSanitize', 'ngFileUpload']);
 let uploading_mes;
+
+function imageUpload(imageDataUrl, type, imageData) {
+    let quill = this.quill;
+    let maxWidth = 600;
+    Swal.fire({
+        title: uploading_mes,
+        allowOutsideClick : false,
+        onBeforeOpen: () => {
+            Swal.showLoading();
+        }
+    })
+
+    imageData
+    .minify({
+      maxWidth: 20000,
+      maxHeight: 2000,
+      quality: 1,
+    })
+    .then((miniImageData) => {
+      const file = miniImageData.toFile()
+        // generate a form data
+        const formData = new FormData()
+        formData.append('image', file)
+
+        $.ajax({
+            url: `/api/document/review/files/usercontent/${teamId}`,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            timeout: 5000
+        })
+        .done(async function(data) {
+            let dataUrl = data.url;
+            const index =
+                (quill.getSelection() || {}).index || quill.getLength();
+                quill.insertEmbed(index, 'image', dataUrl, 'user');
+
+            let dimentions = await getImageDimensions(dataUrl)
+            if (dimentions.w > maxWidth) {
+                quill.formatText(index, 1, 'width', `${maxWidth}px`);
+            }  
+            Swal.close()
+        })
+        .fail(function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: "Upload failed"
+            })
+        });
+    });
+}
+
+function getImageDimensions(file) {
+    return new Promise (function (resolved, rejected) {
+        var i = new Image()
+        i.onload = function(){
+            resolved({w: i.width, h: i.height})
+        };
+        i.src = file
+    })
+}
+
 app.constant('NG_QUILL_CONFIG', {
     /*
      * @NOTE: this config/output is not localizable.
      */
     modules: {
-      toolbar: [
-        ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-        ['blockquote', 'code-block'],
-  
-        [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        [{ 'script': 'sub' }, { 'script': 'super' }],     // superscript/subscript
-        [{ 'indent': '-1' }, { 'indent': '+1' }],         // outdent/indent
-        [{ 'direction': 'rtl' }],                         // text direction
-  
-        [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-  
-        [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-        [{ 'font': [] }],
-        [{ 'align': [] }],
-  
-        ['clean'],                                         // remove formatting button
-  
-        ['link', 'image', 'video']                         // link and image, video
-      ],
-      imageResize: {
-      },
-      imageDropAndPaste: {
-      },
-      imageUpload: {
-        url: `/api/document/review/files/usercontent/${teamId}`, // server url. If the url is empty then the base64 returns
-        method: 'POST', // change query method, default 'POST'
-        name: 'image', // custom form name
-        withCredentials: false, // withCredentials
-        headers: {}, // add custom headers, example { token: 'your-token'}
-        // personalize successful callback and call next function to insert new url to the editor
-        callbackOK: (serverResponse, next) => {
-            next(serverResponse.url);
-            Swal.close()
+        toolbar: {
+          'container': [
+              ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+              ['blockquote', 'code-block'],
+      
+              [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+              [{ 'script': 'sub' }, { 'script': 'super' }],     // superscript/subscript
+              [{ 'indent': '-1' }, { 'indent': '+1' }],         // outdent/indent
+              [{ 'direction': 'rtl' }],                         // text direction
+      
+              [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+              [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      
+              [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+              [{ 'font': [] }],
+              [{ 'align': [] }],
+      
+              ['clean'],                                         // remove formatting button
+      
+              ['link', 'image']                         // link and image, video
+          ],
+          'handlers': {
+              'image': function (clicked) {
+                  let quillThis = this;
+                  if (clicked) {
+                    let fileInput = this.container.querySelector('input.ql-image[type=file]')
+                    if (fileInput == null) {
+                      fileInput = document.createElement('input')
+                      fileInput.setAttribute('type', 'file')
+                      fileInput.setAttribute(
+                        'accept',
+                        'image/png, image/gif, image/jpeg, image/bmp, image/x-icon'
+                      )
+                      fileInput.classList.add('ql-image')
+                      fileInput.addEventListener('change', function (e) {
+                        const files = e.target.files
+                        let file
+                        if (files.length > 0) {
+                          file = files[0]
+                          const type = file.type
+                          const reader = new FileReader()
+                          reader.onload = (e) => {
+                            // handle the inserted image
+                            const dataUrl = e.target.result
+                            imageUpload.call(quillThis, dataUrl, type, new QuillImageDropAndPaste.ImageData(dataUrl, type, file.name))
+                            fileInput.value = ''
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      })
+                    }
+                    fileInput.click()
+                  }
+              }
+          }
         },
-        // personalize failed callback
-        callbackKO: serverError => {
-            console.log(serverError)
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: serverError.type
-            })
+        imageResize: {
         },
-        checkBeforeSend: (file, next) => {
-            Swal.fire({
-                title: uploading_mes,
-                allowOutsideClick : false,
-                onBeforeOpen: () => {
-                    Swal.showLoading();
-                }
-            })
-            next(file); // go back to component and send to the server
+        imageDropAndPaste: {
+          handler: imageUpload
         }
-      }
     },
     theme: 'snow',
     debug: 'warn',
@@ -150,10 +220,10 @@ app.controller('DocumentReviewController', ['$scope', '$uibModal', '$log', '$htt
         $scope.updateReviewUploaded();
         
         $http.get("/api/competitions/" + competitionId + "/documents/" + $scope.team.league + "/review").then(function (response) {
-            $scope.blocks = response.data.blocks;
+            $scope.review = response.data.review.filter((r) => r.assignedReviewers.length == 0 || r.assignedReviewers.some((ar) => ar.reviewerId == userId && (ar.teamIds.some((at) => at == teamId) || ar.teamIds.length == 0)));
+            $scope.blocks = response.data.blocks.filter((b) => $scope.review.some((r) => r.linkedQuestionBlock.some((rl) => rl == b._id)));
             $scope.notifications = response.data.notifications;
             $scope.languages = response.data.languages;
-            $scope.review = response.data.review;
 
             $http.get("/api/document/answer/"+ $scope.team._id + "/" + token).then(function (response) {
                 $scope.answers = response.data;
